@@ -1,5 +1,4 @@
 import { Outlet, useParams } from "react-router";
-import DefaultChat from "@/components/chat/DefaultChat.tsx";
 import ChatRoom from "@/components/chat/ChatRoom.tsx";
 
 export default function ChatListPage() {
@@ -12,7 +11,7 @@ export default function ChatListPage() {
           {/* 상단 헤더 */}
           <div
             className={
-              "bg-background sticky top-0 z-10 flex h-[50px] items-center border-b px-4"
+              "bg-background sticky top-0 z-10 flex h-[50px] items-center border-b px-5"
             }
           >
             <p className={"text-xl font-bold"}>채팅</p>
@@ -32,9 +31,7 @@ export default function ChatListPage() {
         </div>
 
         {/* 채팅 내역 */}
-        <div className={"col-span-3 h-screen"}>
-          {chatId ? <Outlet /> : <DefaultChat />}
-        </div>
+        <div className={"col-span-3 h-screen"}>{chatId && <Outlet />}</div>
       </div>
     </>
   );

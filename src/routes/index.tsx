@@ -13,7 +13,7 @@ import PostPage from "./pages/Post.tsx";
 import NotFoundPage from "@/routes/pages/NotFound.tsx";
 import SettingPage from "@/routes/pages/Setting.tsx";
 import RoomCreate from "@/routes/pages/RoomCreate.tsx";
-import ChatDetailPage from "@/routes/pages/Chat.tsx";
+import ChatDetailPage from "@/routes/pages/ChatDetail.tsx";
 
 const router = createBrowserRouter([
   // { path: "/login", element: <LoginPage /> },

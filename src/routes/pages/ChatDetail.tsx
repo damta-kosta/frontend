@@ -1,10 +1,6 @@
 import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button.tsx";
-import {
-  RiArrowLeftLine,
-  RiSendPlane2Line,
-  RiSendPlaneLine,
-} from "react-icons/ri";
+import { RiArrowLeftLine } from "react-icons/ri";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -22,10 +18,14 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar.tsx";
 import { LuSend } from "react-icons/lu";
+import MessageBubble from "@/components/chat/MessageBubble.tsx";
+import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { cn } from "@/lib/utils.ts";
 
 export default function ChatDetailPage() {
   const { chatId } = useParams();
   const [open, setOpen] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const navigate = useNavigate();
 
   return (
@@ -34,7 +34,7 @@ export default function ChatDetailPage() {
         {/* 상단 헤더 */}
         <div
           className={
-            "bg-background sticky top-0 z-10 flex h-[50px] items-center border-b px-4"
+            "bg-background sticky top-0 z-10 flex h-[50px] shrink-0 items-center border-b px-4"
           }
         >
           <Button
@@ -46,11 +46,18 @@ export default function ChatDetailPage() {
             <RiArrowLeftLine className={"size-7"} />
           </Button>
         </div>
-        <img
-          src={"https://picsum.photos/600/300"}
-          alt={"cover-img"}
-          className={"aspect-3/1 w-full object-cover object-center"}
-        />
+        <div className={"relative aspect-3/1"}>
+          {!loaded && <Skeleton className="absolute inset-0" />}
+          <img
+            src={"https://picsum.photos/600/300"}
+            alt={"cover-img"}
+            className={cn(
+              "aspect-3/1 h-full w-full object-cover object-center transition-opacity duration-300",
+              loaded ? "opacity-100" : "opacity-0",
+            )}
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
         <div className={"sticky flex flex-col gap-2 border-b p-5"}>
           <div className="flex justify-between">
             <p className={"text-3xl font-bold"}>모임명</p>
@@ -93,33 +100,12 @@ export default function ChatDetailPage() {
 
         {/* 채팅 내역 */}
         <div className={"flex flex-col gap-5 p-5"}>
-          {[...Array(2)].map((_, i) => (
-            <div className="flex gap-2">
-              <Avatar className={"size-10"}>
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="@shadcn"
-                />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
-              <div className="flex w-full max-w-1/2 flex-col gap-1">
-                <p className={"font-bold"}>이름</p>
-                <div className={"flex gap-1"}>
-                  <p
-                    className={
-                      "w-full rounded-tr-lg rounded-b-lg bg-gray-100 p-3"
-                    }
-                  >
-                    ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ
-                  </p>
-                  <p
-                    className={"self-end text-xs text-nowrap text-neutral-500"}
-                  >
-                    오전 HH:mm
-                  </p>
-                </div>
-              </div>
-            </div>
+          {[...Array(4)].map((_, i) => (
+            <MessageBubble
+              key={i}
+              isMine={i % 2 === 0}
+              message={`message${i}`}
+            />
           ))}
         </div>
 
@@ -131,6 +117,7 @@ export default function ChatDetailPage() {
             }
           >
             <input
+              maxLength={255}
               placeholder={"작성하기"}
               className={"w-full focus:outline-0"}
             />
