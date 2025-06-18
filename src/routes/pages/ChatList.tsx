@@ -32,7 +32,7 @@ export default function ChatListPage() {
         </div>
 
         {/* 채팅 내역 */}
-        <div className={"col-span-3"}>
+        <div className={"col-span-3 h-screen"}>
           {chatId ? <Outlet /> : <DefaultChat />}
         </div>
       </div>

@@ -1,5 +1,5 @@
-import { Outlet, ScrollRestoration } from "react-router";
-import LeftSideBar from "../../components/LeftSideBar.tsx";
+import { Outlet } from "react-router";
+import LeftSideBar from "@/components/LeftSideBar.tsx";
 
 export default function DefaultLayout() {
   return (
@@ -10,7 +10,6 @@ export default function DefaultLayout() {
           <Outlet />
         </div>
       </div>
-      <ScrollRestoration />
     </>
   );
 }
