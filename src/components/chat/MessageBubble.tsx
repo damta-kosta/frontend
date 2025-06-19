@@ -17,7 +17,7 @@ export default function MessageBubble({ isMine, message }: Props) {
           </p>
           <p
             className={
-              "bg-primary/20 w-fit max-w-[60%] rounded-tl-lg rounded-b-lg p-3 break-all"
+              "bg-primary/20 w-fit max-w-[60%] rounded-tl-lg rounded-b-lg px-3 py-2 break-all"
             }
           >
             {message}
@@ -26,7 +26,7 @@ export default function MessageBubble({ isMine, message }: Props) {
       </div>
     );
   }
-  // 다른 사람이 보낸 메세지
+  // 타인 메세지 (왼쪽)
   else {
     return (
       <div className="flex gap-2">
@@ -34,13 +34,13 @@ export default function MessageBubble({ isMine, message }: Props) {
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <div className="flex w-full max-w-[60%] flex-col gap-1">
+        <div className="flex w-full flex-col gap-1">
           <p className={"font-bold"}>이름</p>
           <div className={"flex gap-1"}>
             {/* 메세지 */}
             <p
               className={
-                "w-fit rounded-tr-lg rounded-b-lg bg-gray-100 p-3 break-all"
+                "w-fit max-w-[60%] rounded-tr-lg rounded-b-lg bg-gray-100 px-3 py-2 break-all"
               }
             >
               {message}

@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import { cn } from "../lib/utils.ts";
 import {
   RiGroupFill,
@@ -14,6 +14,7 @@ import {
   RiUser3Fill,
   RiUser3Line,
 } from "react-icons/ri";
+import { Button } from "@/components/ui/button.tsx";
 
 const navigations = [
   { to: "/", label: "홈", icon: RiHome3Line, iconActive: RiHome3Fill },
@@ -44,11 +45,22 @@ const navigations = [
 ];
 
 export default function LeftSideBar() {
+  const location = useLocation();
+
   return (
     <div className={"sticky top-0 col-span-1 h-screen border-r p-5"}>
       <nav className={"flex h-full flex-col gap-1 text-lg"}>
-        <Link to={"/"} className={"text-primary px-5 pb-4 font-black"}>
-          <RiSkull2Fill className={"size-8"} />
+        {/* 로고 */}
+        <Link to={"/"} className={"text-primary px-2 pb-3"}>
+          <Button
+            variant={"ghost"}
+            size={"icon"}
+            className={
+              "hover:bg-primary/10 hover:text-primary rounded-full p-7"
+            }
+          >
+            <RiSkull2Fill className={"size-10"} />
+          </Button>
         </Link>
         <div className={"flex h-full flex-col justify-between"}>
           <div className={"flex flex-col gap-1"}>
@@ -79,6 +91,7 @@ export default function LeftSideBar() {
           </div>
           <NavLink
             to={"/login"}
+            state={{ background: location }}
             className={
               "hover:bg-primary/10 flex items-center gap-3 rounded-full px-5 py-3 text-start hover:font-bold"
             }

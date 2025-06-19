@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { RiUserAddLine } from "react-icons/ri";
 import SortTabs from "@/components/room/SortTabs.tsx";
 import Room from "@/components/room/Room.tsx";
+import { Button } from "@/components/ui/button.tsx";
 
 export default function RoomPage() {
   return (
@@ -11,11 +12,10 @@ export default function RoomPage() {
           className={"flex h-[50px] w-full items-center justify-between px-5"}
         >
           <p className={"text-xl font-bold"}>모임 리스트</p>
-          <Link
-            to={"/room/create"}
-            className={"rounded-full p-1 hover:bg-neutral-100"}
-          >
-            <RiUserAddLine className={"size-6"} />
+          <Link to={"/room/create"}>
+            <Button variant={"ghost"} size={"icon"} className={"rounded-full"}>
+              <RiUserAddLine className={"size-6"} />
+            </Button>
           </Link>
         </div>
         <SortTabs />
