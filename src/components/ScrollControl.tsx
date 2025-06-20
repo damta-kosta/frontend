@@ -7,7 +7,7 @@ export default function ScrollControl() {
   const location = useLocation();
   const prevPathRef = useRef(location.pathname);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const prevPath = prevPathRef.current;
     const currPath = location.pathname;
     const scrollEl = document.getElementById("main-scroll-container");
@@ -35,6 +35,11 @@ export default function ScrollControl() {
     });
 
     prevPathRef.current = currPath;
+  }, [location.pathname]);*/
+
+  useEffect(() => {
+    const scrollEl = document.getElementById("main-scroll-container");
+    scrollEl?.scrollTo({ top: 0, behavior: "auto" });
   }, [location.pathname]);
 
   return null;

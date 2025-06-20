@@ -55,13 +55,6 @@ export default function UserPage() {
               <Button>설정</Button>
             </div>
           </div>
-          <div className={"flex justify-between"}>
-            <p>휴대폰 번호</p>
-            <div className={"flex gap-3"}>
-              <Input className={"w-56"} />
-              <Button>설정</Button>
-            </div>
-          </div>
         </div>
       </div>
     </>

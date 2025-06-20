@@ -2,10 +2,12 @@ import { useNavigate } from "react-router";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
+import { Button } from "@/components/ui/button.tsx";
+import { SiKakao } from "react-icons/si";
+import kakaoIcon from "@/assets/kakao.svg";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -13,14 +15,33 @@ export default function LoginPage() {
   return (
     <>
       <Dialog defaultOpen={true} onOpenChange={() => navigate(-1)}>
-        <DialogContent showCloseButton={false}>
+        <DialogContent showCloseButton={true}>
           <DialogHeader>
-            <DialogTitle>로그인</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
+            <DialogTitle className={"text-center text-2xl"}>로그인</DialogTitle>
           </DialogHeader>
+
+          <div className={"flex flex-col items-center gap-7"}>
+            <div
+              className={"flex flex-col items-center gap-3 py-3 text-center"}
+            >
+              <img src={"src/assets/lock.png"} alt="lock" className={"h-40"} />
+              <p className={"text-lg"}>
+                회원가입 없이
+                <br /> 카카오 계정으로 바로 시작하세요
+              </p>
+            </div>
+
+            {/* 로그인 버튼 */}
+            <Button
+              className={
+                "w-full max-w-[240px] rounded-lg py-6 text-lg text-black"
+              }
+              style={{ background: "#FEE500" }}
+            >
+              <img src={kakaoIcon} alt="kakao" className={"h-[20px]"} />
+              카카오 로그인
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>

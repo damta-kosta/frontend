@@ -36,7 +36,7 @@ export default function HomePage() {
           <Link
             to={`/post/${index}`}
             className={
-              "flex cursor-pointer gap-3 rounded-xl border p-5 hover:bg-neutral-50"
+              "flex cursor-pointer gap-3 rounded-xl border p-5 hover:bg-neutral-400/10"
             }
           >
             <div>

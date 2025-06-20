@@ -1,7 +1,8 @@
 import { useTheme } from "@/components/ThemeProvider.tsx";
+import { cn } from "@/lib/utils.ts";
 
 export default function SettingPage() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <>
@@ -18,23 +19,51 @@ export default function SettingPage() {
           <div className={"grid grid-cols-3 gap-3"}>
             <button
               onClick={() => setTheme("system")}
-              className={"rounded border py-2"}
+              className={cn("relative rounded border-2 py-2 font-bold", {
+                "border-primary text-primary":
+                  theme === "system" || theme === undefined,
+              })}
             >
               시스템
+              {(theme === "system" || theme === undefined) && (
+                <div
+                  className={
+                    "bg-primary absolute top-1/2 right-3 h-3 w-3 -translate-y-1/2 rounded-full"
+                  }
+                />
+              )}
             </button>
             <button
               onClick={() => setTheme("light")}
-              className={"rounded border bg-white py-2 text-black"}
+              className={cn(
+                "relative rounded border-2 bg-white py-2 font-bold text-black",
+                { "border-primary text-primary": theme === "light" },
+              )}
             >
               라이트
+              {theme === "light" && (
+                <div
+                  className={
+                    "bg-primary absolute top-1/2 right-3 h-3 w-3 -translate-y-1/2 rounded-full"
+                  }
+                />
+              )}
             </button>
             <button
               onClick={() => setTheme("dark")}
-              className={
-                "bg-background dark text-foreground rounded border py-2"
-              }
+              className={cn(
+                "bg-background dark text-foreground relative rounded border-2 py-2 font-bold",
+                { "border-primary text-primary": theme === "dark" },
+              )}
             >
               다크
+              {theme === "dark" && (
+                <div
+                  className={
+                    "bg-primary absolute top-1/2 right-3 h-3 w-3 -translate-y-1/2 rounded-full"
+                  }
+                />
+              )}
             </button>
           </div>
         </div>
