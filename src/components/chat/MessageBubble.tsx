@@ -40,7 +40,7 @@ export default function MessageBubble({ isMine, message }: Props) {
             {/* 메세지 */}
             <p
               className={
-                "w-fit max-w-[60%] rounded-tr-lg rounded-b-lg bg-gray-100 px-3 py-2 break-all"
+                "w-fit max-w-[60%] rounded-tr-lg rounded-b-lg bg-neutral-300/20 px-3 py-2 break-all"
               }
             >
               {message}

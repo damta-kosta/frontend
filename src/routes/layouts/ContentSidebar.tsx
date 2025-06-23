@@ -10,13 +10,15 @@ export default function ContentSidebarLayout() {
         <div
           id="main-scroll-container"
           className={
-            "col-span-full flex flex-col overflow-y-auto border-r lg:col-span-2"
+            "col-span-3 flex flex-col overflow-y-auto border-r xl:col-span-2"
           }
         >
           <Outlet />
         </div>
 
-        <RightSideBar />
+        <div className={"hidden xl:block"}>
+          <RightSideBar />
+        </div>
       </div>
     </>
   );

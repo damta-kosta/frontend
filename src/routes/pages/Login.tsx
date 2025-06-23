@@ -6,8 +6,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog.tsx";
 import { Button } from "@/components/ui/button.tsx";
-import { SiKakao } from "react-icons/si";
-import kakaoIcon from "@/assets/kakao.svg";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -38,7 +36,11 @@ export default function LoginPage() {
               }
               style={{ background: "#FEE500" }}
             >
-              <img src={kakaoIcon} alt="kakao" className={"h-[20px]"} />
+              <img
+                src={"src/assets/kakao.svg"}
+                alt="kakao"
+                className={"h-[20px]"}
+              />
               카카오 로그인
             </Button>
           </div>

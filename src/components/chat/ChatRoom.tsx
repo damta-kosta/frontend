@@ -14,8 +14,8 @@ export default function ChatRoom({ chatId }: Props) {
       <NavLink
         to={`/chat/${chatId}`}
         className={({ isActive }) =>
-          cn("flex items-center gap-4 p-5 hover:bg-gray-100", {
-            "bg-gray-100": isActive,
+          cn("flex items-center gap-4 p-5 hover:bg-neutral-400/10", {
+            "bg-neutral-400/10": isActive,
           })
         }
       >

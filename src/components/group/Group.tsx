@@ -7,13 +7,23 @@ import {
 import { cn } from "@/lib/utils.ts";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
+import { Link, useLocation } from "react-router";
 
-export default function Room() {
+type Props = {
+  groupId: string | number;
+};
+
+export default function Group({ groupId }: Props) {
+  const location = useLocation();
   const [loaded, setLoaded] = useState(false);
 
   return (
     <>
-      <div className={"relative flex cursor-pointer gap-5"}>
+      <Link
+        to={`/group/${groupId}`}
+        state={{ from: location.pathname }}
+        className={"relative flex cursor-pointer gap-5"}
+      >
         {/* 커버 이미지 */}
         <div
           className={
@@ -67,7 +77,7 @@ export default function Room() {
             </Avatar>
           </div>
         </div>
-      </div>
+      </Link>
     </>
   );
 }

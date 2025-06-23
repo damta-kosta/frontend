@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button.tsx";
 const navigations = [
   { to: "/", label: "홈", icon: RiHome3Line, iconActive: RiHome3Fill },
   {
-    to: "/room",
+    to: "/group",
     label: "모임 리스트",
     icon: RiGroupLine,
     iconActive: RiGroupFill,
@@ -48,7 +48,7 @@ export default function LeftSideBar() {
   const location = useLocation();
 
   return (
-    <div className={"sticky top-0 col-span-1 h-screen border-r p-5"}>
+    <div className={"sticky top-0 col-span-1 h-screen border-r p-1 sm:p-5"}>
       <nav className={"flex h-full flex-col gap-1 text-lg"}>
         {/* 로고 */}
         <Link to={"/"} className={"text-primary px-2 pb-3"}>
@@ -82,7 +82,7 @@ export default function LeftSideBar() {
                   return (
                     <>
                       <Icon className="size-7" />
-                      <span className={"hidden 2xl:block"}>{nav.label}</span>
+                      <span className={"hidden xl:block"}>{nav.label}</span>
                     </>
                   );
                 }}

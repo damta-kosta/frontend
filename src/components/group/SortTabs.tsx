@@ -10,7 +10,7 @@ export default function SortTabs() {
     <div className={"relative grid h-[50px] grid-cols-2 font-bold"}>
       <Link
         to="?sort=latest"
-        className="flex h-full w-full flex-col items-center justify-center hover:bg-neutral-100"
+        className="flex h-full w-full flex-col items-center justify-center hover:bg-neutral-400/10"
       >
         <p className={cn({ "text-neutral-400": !isLatest })}>최신순</p>
         <div
@@ -22,7 +22,7 @@ export default function SortTabs() {
       </Link>
       <Link
         to="?sort=deadline"
-        className="flex h-full w-full flex-col items-center justify-center hover:bg-neutral-100"
+        className="flex h-full w-full flex-col items-center justify-center hover:bg-neutral-400/10"
       >
         <p className={cn({ "text-neutral-400": isLatest })}>마감순</p>
         <div

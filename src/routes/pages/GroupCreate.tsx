@@ -12,7 +12,7 @@ import { useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar.tsx";
 
-export default function RoomCreate() {
+export default function GroupCreate() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);

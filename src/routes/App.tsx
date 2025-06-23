@@ -3,7 +3,6 @@ import DefaultLayout from "./layouts/Default.tsx";
 import ChatListPage from "./pages/ChatList.tsx";
 import HomePage from "./pages/Home.tsx";
 import LoginPage from "./pages/Login.tsx";
-import RoomPage from "./pages/Room.tsx";
 import UserPage from "./pages/User.tsx";
 import ContentSidebarLayout from "./layouts/ContentSidebar.tsx";
 import { ThemeProvider } from "../components/ThemeProvider.tsx";
@@ -11,8 +10,10 @@ import PrivateRoute from "../components/PrivateRoute.tsx";
 import PostPage from "./pages/Post.tsx";
 import NotFoundPage from "@/routes/pages/NotFound.tsx";
 import SettingPage from "@/routes/pages/Setting.tsx";
-import RoomCreate from "@/routes/pages/RoomCreate.tsx";
+import GroupCreate from "@/routes/pages/GroupCreate.tsx";
 import ChatDetailPage from "@/routes/pages/ChatDetail.tsx";
+import GroupPage from "@/routes/pages/GroupList.tsx";
+import GroupDetailPage from "@/routes/pages/GroupDetail.tsx";
 
 export default function App() {
   const location = useLocation();
@@ -39,13 +40,15 @@ export default function App() {
             {/* 게시글 조회 */}
             <Route path={"post/:postId"} element={<PostPage />} />
             {/* 모임 리스트 */}
-            <Route path={"room"} element={<RoomPage />} />
+            <Route path={"group"} element={<GroupPage />} />
+            {/* 모임 조회 */}
+            <Route path={"group/:groupId"} element={<GroupDetailPage />} />
             {/* 모임 생성 */}
             <Route
-              path={"room/create"}
+              path={"group/create"}
               element={
                 <PrivateRoute>
-                  <RoomCreate />
+                  <GroupCreate />
                 </PrivateRoute>
               }
             />

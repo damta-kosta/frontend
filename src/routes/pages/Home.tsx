@@ -35,6 +35,7 @@ export default function HomePage() {
         {postData.map((item, index) => (
           <Link
             to={`/post/${index}`}
+            state={{ from: location.pathname }}
             className={
               "flex cursor-pointer gap-3 rounded-xl border p-5 hover:bg-neutral-400/10"
             }

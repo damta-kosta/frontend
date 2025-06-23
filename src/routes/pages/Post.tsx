@@ -1,13 +1,15 @@
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { RiArrowLeftLine } from "react-icons/ri";
 import { Avatar, AvatarImage } from "../../components/ui/avatar.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { cn } from "@/lib/utils.ts";
+import { Button } from "@/components/ui/button.tsx";
 
 export default function PostPage() {
   const { postId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loaded, setLoaded] = useState(false);
 
   // 게시글 API 받아오기
@@ -21,12 +23,14 @@ export default function PostPage() {
           "bg-background sticky top-0 z-10 flex h-[50px] shrink-0 items-center border-b px-4"
         }
       >
-        <button
-          onClick={() => navigate(-1)}
-          className={"rounded-full p-1 hover:bg-neutral-100"}
+        <Button
+          variant={"ghost"}
+          size={"icon"}
+          onClick={() => (location.state ? navigate(-1) : navigate("/"))}
+          className={"rounded-full"}
         >
           <RiArrowLeftLine className={"size-7"} />
-        </button>
+        </Button>
       </div>
 
       <div className={"relative flex h-full flex-col gap-4 px-5 pt-5 pb-10"}>
@@ -82,7 +86,7 @@ export default function PostPage() {
       </div>
 
       {/* 댓글 작성 */}
-      <div className="sticky bottom-0 z-10 flex items-center gap-3 border-t bg-white px-5 py-3">
+      <div className="bg-background sticky bottom-0 z-10 flex items-center gap-3 border-t px-5 py-3">
         <input className="box-border h-[40px] w-full rounded-full border px-5 leading-none" />
         <button
           className={
