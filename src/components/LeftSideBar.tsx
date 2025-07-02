@@ -10,11 +10,11 @@ import {
   RiMessage3Line,
   RiSettings4Fill,
   RiSettings4Line,
-  RiSkull2Fill,
   RiUser3Fill,
   RiUser3Line,
 } from "react-icons/ri";
-import { Button } from "@/components/ui/button.tsx";
+import LogoIcon from "@/assets/icon.svg?react";
+import style from "@/styles/LeftSideBar.module.css";
 
 const navigations = [
   { to: "/", label: "홈", icon: RiHome3Line, iconActive: RiHome3Fill },
@@ -52,15 +52,18 @@ export default function LeftSideBar() {
       <nav className={"flex h-full flex-col gap-1 text-lg"}>
         {/* 로고 */}
         <Link to={"/"} className={"text-primary px-2 pb-3"}>
-          <Button
-            variant={"ghost"}
-            size={"icon"}
+          <button
             className={
-              "hover:bg-primary/10 hover:text-primary rounded-full p-7"
+              "hover:bg-primary/10 hover:text-primary flex items-center gap-2 rounded-full p-3"
             }
           >
-            <RiSkull2Fill className={"size-10"} />
-          </Button>
+            <LogoIcon className="size-8" />
+            <span
+              className={`text-foreground ${style.logo} hidden text-2xl xl:block`}
+            >
+              담타
+            </span>
+          </button>
         </Link>
         <div className={"flex h-full flex-col justify-between"}>
           <div className={"flex flex-col gap-1"}>

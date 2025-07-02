@@ -1,27 +1,60 @@
-import { Link } from "react-router";
 import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
-import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
-import { RiChat3Line } from "react-icons/ri";
-
-const postData = [
-  { user: "사람이름1", content: "내용", reply: 1 },
-  { user: "사람이름2", content: "내용", reply: 2 },
-  { user: "사람이름3", content: "내용", reply: 3 },
-  { user: "사람이름4", content: "내용", reply: 4 },
-  { user: "사람이름5", content: "내용", reply: 6 },
-  { user: "사람이름6", content: "내용", reply: 7 },
-];
+import { useEffect, useState } from "react";
+import axios from "axios";
+import type { CommunityResponse } from "@/types/Community.ts";
+import CommunityFeed from "@/components/home/CommunityFeed.tsx";
 
 export default function HomePage() {
-  const { ref, inView } = useInView({ threshold: 0.5, delay: 500 });
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    delay: 500,
+    initialInView: false,
+  });
+  const [postData, setPostData] = useState<CommunityResponse>({
+    community: [],
+    hasNext: true,
+    nextCursor: null,
+  });
+
+  // 처음 로딩
+  useEffect(() => {
+    const fetchPosts = async () => {
+      await axios
+        .get("/api/community")
+        .then((res) => setPostData(res.data))
+        .catch((err) => console.error(err));
+    };
+
+    fetchPosts();
+  }, []);
 
   // 무한 스크롤 감지
   useEffect(() => {
-    if (inView) {
+    const fetchPosts = async () => {
+      await axios
+        .get(`/api/community?cursor=${postData.nextCursor}&limit=10`)
+        .then((res) => res.data)
+        .then((data: CommunityResponse) => {
+          setPostData((prev) => ({
+            community: [...prev.community, ...data.community],
+            hasNext: data.hasNext,
+            nextCursor: data.nextCursor,
+          }));
+        })
+        .catch((err) => {
+          setPostData((prev) => ({
+            ...prev,
+            hasNext: false,
+            nextCursor: null,
+          }));
+        });
+    };
+
+    if (inView && postData.hasNext) {
       //   함수 실행
+      fetchPosts();
     }
-  }, [inView]);
+  }, [inView, postData.hasNext]);
 
   return (
     <>
@@ -32,39 +65,11 @@ export default function HomePage() {
         </div>
 
         {/* 피드 */}
-        {postData.map((item, index) => (
-          <Link
-            to={`/post/${index}`}
-            state={{ from: location.pathname }}
-            className={
-              "flex cursor-pointer gap-3 rounded-xl border p-5 hover:bg-neutral-400/10"
-            }
-          >
-            <div>
-              <Avatar className={"size-10"}>
-                <div
-                  className={
-                    "absolute inset-0 cursor-pointer bg-neutral-800/20 opacity-0 transition-opacity duration-200 hover:opacity-100"
-                  }
-                ></div>
-                <AvatarImage
-                  src={"https://github.com/shadcn.png"}
-                  alt="@shadcn"
-                />
-              </Avatar>
-            </div>
-            <div className={"flex w-full flex-col gap-1"}>
-              <p className={"cursor-pointer font-bold"}>{item.user}</p>
-              <p>{item.content}</p>
-              <p className={"flex items-center gap-1 text-neutral-500"}>
-                <RiChat3Line /> {item.reply}
-              </p>
-            </div>
-          </Link>
-        ))}
+        {postData?.community?.length > 0 &&
+          postData?.community?.map((post) => <CommunityFeed post={post} />)}
 
         {/* 무한 스크롤 감지 */}
-        <div className={"bg-primary h-20 w-full touch-none"} ref={ref}></div>
+        <div className={"h-20 w-full touch-none"} ref={ref}></div>
       </div>
     </>
   );

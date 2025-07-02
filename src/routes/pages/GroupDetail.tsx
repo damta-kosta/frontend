@@ -1,4 +1,4 @@
-import { RiCloseLine } from "react-icons/ri";
+import { RiArrowLeftLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
@@ -24,7 +24,7 @@ export default function GroupDetailPage() {
             onClick={() => navigate("/group")}
             className={"rounded-full"}
           >
-            <RiCloseLine className={"size-7"} />
+            <RiArrowLeftLine className={"size-7"} />
           </Button>
         </div>
 
@@ -43,11 +43,20 @@ export default function GroupDetailPage() {
         </div>
         {/* 본문 */}
         <div className={"flex flex-col gap-5 px-5 py-10"}>
-          <h1 className={"truncate text-2xl"}>제목</h1>
+          <h1 className={"truncate text-3xl font-bold"}>제목</h1>
           <p className={""}>개설일</p>
           <p className={""}>모임 설명</p>
         </div>
       </div>
+
+      {/* 신청 버튼 */}
+      <Button
+        className={
+          "sticky bottom-0 z-10 w-full rounded-none py-6 text-lg font-bold tracking-widest"
+        }
+      >
+        신청하기
+      </Button>
     </>
   );
 }
