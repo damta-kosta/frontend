@@ -51,7 +51,7 @@ export default function Group({ room }: Props) {
             <div className={"flex items-center gap-2 text-neutral-500"}>
               <RiCalendar2Line className={"size-5"} />
               <p className={""}>
-                {dayjs(room.room_scheduled).format("YY.MM.DD(ddd) A h:mm")}
+                {dayjs(room.room_scheduled).format("M.D(ddd) A h:mm")}
               </p>
             </div>
           </div>

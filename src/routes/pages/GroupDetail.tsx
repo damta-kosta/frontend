@@ -1,4 +1,4 @@
-import { RiAddLine, RiArrowLeftLine } from "react-icons/ri";
+import { RiAddLine, RiArrowLeftLine, RiVipCrownFill } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
@@ -73,7 +73,7 @@ export default function GroupDetailPage() {
             {/* 본문 */}
             <div
               className={
-                "bg-background absolute bottom-0 left-0 flex w-full flex-col gap-5 rounded-t-xl px-5 py-10"
+                "bg-background absolute bottom-0 left-0 flex h-1/3 w-full flex-col gap-5 rounded-t-xl px-5 py-10 xl:h-1/2"
               }
             >
               <h1 className={"truncate text-3xl font-bold"}>
@@ -89,15 +89,25 @@ export default function GroupDetailPage() {
                 </span>
               </p>
               {/* 모임 인원 */}
-              <div className={"flex gap-1"}>
+              <div className={"flex gap-4"}>
                 {roomDetailData.participants.map((participant) => (
-                  <Avatar key={participant.user_id} className={"size-10"}>
-                    <AvatarImage
-                      src={participant.user_profile_img}
-                      alt="user"
-                    />
-                    <AvatarFallback />
-                  </Avatar>
+                  <div className={"flex flex-col items-center gap-1"}>
+                    {participant.is_host && (
+                      <RiVipCrownFill className={"bg-primary"} />
+                    )}
+                    <Avatar key={participant.user_id} className={"size-12"}>
+                      <AvatarImage
+                        src={participant.user_profile_img}
+                        alt="user"
+                      />
+                      <AvatarFallback />
+                    </Avatar>
+                    <p className={"text-sm"}>
+                      {participant!.user_nickname!.length > 5
+                        ? participant!.user_nickname!.slice(0, 5) + "..."
+                        : participant.user_nickname}
+                    </p>
+                  </div>
                 ))}
                 {[
                   ...Array(

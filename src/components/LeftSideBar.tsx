@@ -15,6 +15,7 @@ import {
 } from "react-icons/ri";
 import LogoIcon from "@/assets/icon.svg?react";
 import style from "@/styles/LeftSideBar.module.css";
+import { LuPencil } from "react-icons/lu";
 
 const navigations = [
   { to: "/", label: "홈", icon: RiHome3Line, iconActive: RiHome3Fill },
@@ -51,10 +52,10 @@ export default function LeftSideBar() {
     <div className={"sticky top-0 col-span-1 h-screen border-r p-1 sm:p-5"}>
       <nav className={"flex h-full flex-col gap-1 text-lg"}>
         {/* 로고 */}
-        <Link to={"/"} className={"text-primary px-2 pb-3"}>
+        <Link to={"/"} className={"text-primary pb-3"}>
           <button
             className={
-              "hover:bg-primary/10 hover:text-primary flex w-full items-center justify-center gap-2 rounded-full p-3 xl:justify-start"
+              "hover:bg-primary/10 hover:text-primary flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 xl:justify-start"
             }
           >
             <LogoIcon className="size-8" />
@@ -65,6 +66,7 @@ export default function LeftSideBar() {
             </span>
           </button>
         </Link>
+
         <div className={"flex h-full flex-col justify-between"}>
           <div className={"flex flex-col gap-1"}>
             {navigations.map((nav) => (
@@ -91,6 +93,15 @@ export default function LeftSideBar() {
                 }}
               </NavLink>
             ))}
+            <NavLink
+              to={"/write"}
+              className={
+                "bg-primary text-background flex items-center justify-center gap-3 rounded-full px-5 py-3 text-start"
+              }
+            >
+              <LuPencil className={"size-6"} />
+              <span className={"hidden font-bold xl:block"}>글쓰기</span>
+            </NavLink>
           </div>
           <NavLink
             to={"/login"}
