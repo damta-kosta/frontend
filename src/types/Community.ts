@@ -5,13 +5,24 @@ export type CommunityItem = {
   content: string;
   imagebase64: string;
   writer_nickname: string;
-  create_at: string | Date;
+  create_at: string;
 };
 
 export type CommunityResponse = {
   community: CommunityItem[];
   hasNext: boolean;
   nextCursor: string | Date | null;
+};
+
+// 상세 조회
+export type Post = {
+  community_id: string;
+  community_title: string;
+  content: string;
+  imagebase64: string;
+  writer_nickname: string;
+  writer_profile_img: string;
+  create_at: string;
 };
 
 // 댓글

@@ -1,6 +1,12 @@
-import { Avatar, AvatarImage } from "@/components/ui/avatar.tsx";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 import { Link } from "react-router";
 import type { CommunityItem } from "@/types/Community.ts";
+import { formatTweetTime } from "@/lib/formatTweetTime.ts";
+import { cn } from "@/lib/utils.ts";
 
 type Props = {
   post: CommunityItem;
@@ -22,20 +28,30 @@ export default function CommunityFeed({ post }: Props) {
             className={
               "absolute inset-0 cursor-pointer bg-neutral-800/20 opacity-0 transition-opacity duration-200 hover:opacity-100"
             }
-          ></div>
-          <AvatarImage
-            src={
-              post.imagebase64.length > 1
-                ? post.imagebase64
-                : "https://github.com/shadcn.png"
-            }
-            alt="user_profile_img"
           />
+          <AvatarImage src={post.imagebase64} alt="user_profile_img" />
+          <AvatarFallback />
         </Avatar>
       </div>
       <div className={"flex w-full flex-col gap-1"}>
-        <p className={"cursor-pointer font-bold"}>{post.writer_nickname}</p>
-        <p>{post.content}</p>
+        <p className={"cursor-pointer font-bold"}>
+          {post.writer_nickname}
+          <span className={"text-foreground/40 pl-2 font-medium"}>
+            {formatTweetTime(post.create_at)}
+          </span>
+        </p>
+        <p className={"line-clamp-[8]"}>{post.content}</p>
+        {post.imagebase64.length > 10 && (
+          <div className="relative aspect-5/3 w-full overflow-hidden rounded-lg">
+            <img
+              src={post.imagebase64}
+              alt="img"
+              className={cn(
+                "h-40 w-full object-cover transition-opacity duration-300",
+              )}
+            />
+          </div>
+        )}
       </div>
     </Link>
   );

@@ -14,6 +14,12 @@ import GroupCreate from "@/routes/pages/GroupCreate.tsx";
 import ChatDetailPage from "@/routes/pages/ChatDetail.tsx";
 import GroupPage from "@/routes/pages/GroupList.tsx";
 import GroupDetailPage from "@/routes/pages/GroupDetail.tsx";
+import dayjs from "dayjs";
+import "dayjs/locale/ko.js";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.locale("ko");
+dayjs.extend(relativeTime);
 
 export default function App() {
   const location = useLocation();

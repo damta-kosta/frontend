@@ -54,14 +54,14 @@ export default function LeftSideBar() {
         <Link to={"/"} className={"text-primary px-2 pb-3"}>
           <button
             className={
-              "hover:bg-primary/10 hover:text-primary flex items-center gap-2 rounded-full p-3"
+              "hover:bg-primary/10 hover:text-primary flex w-full items-center justify-center gap-2 rounded-full p-3 xl:justify-start"
             }
           >
             <LogoIcon className="size-8" />
             <span
-              className={`text-foreground ${style.logo} hidden text-2xl xl:block`}
+              className={`text-foreground ${style.logo} hidden text-2xl font-bold tracking-widest xl:block`}
             >
-              담타
+              DAMTA
             </span>
           </button>
         </Link>

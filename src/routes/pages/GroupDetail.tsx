@@ -1,17 +1,41 @@
-import { RiArrowLeftLine } from "react-icons/ri";
-import { useNavigate } from "react-router";
+import { RiAddLine, RiArrowLeftLine } from "react-icons/ri";
+import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { cn } from "@/lib/utils.ts";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import type { RoomListDetail } from "@/types/Room.ts";
+import dayjs from "dayjs";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar.tsx";
 
 export default function GroupDetailPage() {
+  const { groupId } = useParams();
   const navigate = useNavigate();
+
+  const [roomDetailData, setRoomDetailData] = useState<RoomListDetail>();
+
   const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const fetchGroupDetail = async () => {
+      const data: RoomListDetail = await axios
+        .get(`/api/roomList/rooms/${groupId}`)
+        .then((res) => res.data);
+
+      setRoomDetailData(data);
+    };
+
+    fetchGroupDetail();
+  }, [groupId]);
 
   return (
     <>
-      <div className={"flex h-full flex-col overflow-y-auto"}>
+      <div className={"relative flex h-full flex-col overflow-y-auto"}>
         {/* 상단 헤더 */}
         <div
           className={
@@ -28,25 +52,74 @@ export default function GroupDetailPage() {
           </Button>
         </div>
 
-        {/* 커버 이미지 */}
-        <div className={"relative aspect-2/1"}>
-          {!loaded && <Skeleton className="absolute inset-0" />}
-          <img
-            src={"https://picsum.photos/600/300"}
-            alt={"cover-img"}
-            className={cn(
-              "aspect-2/1 h-full w-full object-cover object-center transition-opacity duration-300",
-              loaded ? "opacity-100" : "opacity-0",
-            )}
-            onLoad={() => setLoaded(true)}
-          />
-        </div>
-        {/* 본문 */}
-        <div className={"flex flex-col gap-5 px-5 py-10"}>
-          <h1 className={"truncate text-3xl font-bold"}>제목</h1>
-          <p className={""}>개설일</p>
-          <p className={""}>모임 설명</p>
-        </div>
+        {roomDetailData && (
+          <>
+            {/* 커버 이미지 */}
+            <div className={"relative h-full w-full"}>
+              {!loaded && (
+                <Skeleton className="absolute inset-0 rounded-none" />
+              )}
+              <img
+                src={roomDetailData.thumbnailBase64 ?? ""}
+                alt={"cover-img"}
+                className={cn(
+                  "h-full w-full object-cover object-center transition-opacity duration-300",
+                  loaded ? "opacity-100" : "opacity-0",
+                )}
+                onLoad={() => setLoaded(true)}
+                onError={() => setLoaded(false)}
+              />
+            </div>
+            {/* 본문 */}
+            <div
+              className={
+                "bg-background absolute bottom-0 left-0 flex w-full flex-col gap-5 rounded-t-xl px-5 py-10"
+              }
+            >
+              <h1 className={"truncate text-3xl font-bold"}>
+                {roomDetailData.title}
+              </h1>
+              {/* 모임 날짜 */}
+              <p className={""}>
+                모임일
+                <span className={"pl-2"}>
+                  {dayjs(roomDetailData.room_scheduled).format(
+                    "YY.MM.DD(ddd) A h:mm",
+                  )}
+                </span>
+              </p>
+              {/* 모임 인원 */}
+              <div className={"flex gap-1"}>
+                {roomDetailData.participants.map((participant) => (
+                  <Avatar key={participant.user_id} className={"size-10"}>
+                    <AvatarImage
+                      src={participant.user_profile_img}
+                      alt="user"
+                    />
+                    <AvatarFallback />
+                  </Avatar>
+                ))}
+                {[
+                  ...Array(
+                    roomDetailData.max_participants -
+                      roomDetailData.participant_count,
+                  ),
+                ].map((_, i) => (
+                  <Avatar
+                    key={i}
+                    className={
+                      "flex size-10 items-center justify-center border-2 border-dashed"
+                    }
+                  >
+                    <RiAddLine className={"size-5 text-neutral-400"} />
+                  </Avatar>
+                ))}
+              </div>
+              {/* 모임 설명 */}
+              <p className={""}>{roomDetailData.description}</p>
+            </div>
+          </>
+        )}
       </div>
 
       {/* 신청 버튼 */}

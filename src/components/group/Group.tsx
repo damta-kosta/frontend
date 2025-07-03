@@ -8,19 +8,21 @@ import { cn } from "@/lib/utils.ts";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { Link, useLocation } from "react-router";
+import type { RoomListItem } from "@/types/Room.ts";
+import dayjs from "dayjs";
 
 type Props = {
-  groupId: string | number;
+  room: RoomListItem;
 };
 
-export default function Group({ groupId }: Props) {
+export default function Group({ room }: Props) {
   const location = useLocation();
   const [loaded, setLoaded] = useState(false);
 
   return (
     <>
       <Link
-        to={`/group/${groupId}`}
+        to={`/group/${room.room_id}`}
         state={{ from: location.pathname }}
         className={"relative flex cursor-pointer gap-5"}
       >
@@ -32,7 +34,7 @@ export default function Group({ groupId }: Props) {
         >
           {!loaded && <Skeleton className="absolute inset-0 rounded-lg" />}
           <img
-            src="https://picsum.photos/300/400"
+            src={room.thumbnailBase64 ?? ""}
             alt="img"
             className={cn(
               "h-full w-full object-cover transition-opacity duration-300",
@@ -43,38 +45,37 @@ export default function Group({ groupId }: Props) {
         </div>
         <div className={"flex w-full flex-col justify-between"}>
           {/* 모임 정보 */}
-          <div>
-            <p className={"text-2xl font-bold"}>제목</p>
-            <p className={""}>설명</p>
+          <div className={"flex flex-col gap-2"}>
+            <p className={"text-2xl font-bold"}>{room.title}</p>
+            <p className={""}>{room.description}</p>
             <div className={"flex items-center gap-2 text-neutral-500"}>
               <RiCalendar2Line className={"size-5"} />
-              <p className={""}>yyyy-MM-dd HH:mm</p>
+              <p className={""}>
+                {dayjs(room.room_scheduled).format("YY.MM.DD(ddd) A h:mm")}
+              </p>
             </div>
           </div>
           {/* 참가 인원 현황 */}
           <div className="flex gap-1">
-            <Avatar className={"size-10"}>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-            <Avatar className={"size-10"}>
-              <AvatarImage src="https://github.com/leerob.png" alt="@leerob" />
-              <AvatarFallback>LR</AvatarFallback>
-            </Avatar>
-            <Avatar className={"size-10"}>
-              <AvatarImage
-                src="https://github.com/evilrabbit.png"
-                alt="@evilrabbit"
-              />
-              <AvatarFallback>ER</AvatarFallback>
-            </Avatar>
-            <Avatar
-              className={
-                "flex size-10 items-center justify-center border-2 border-dashed"
-              }
-            >
-              <RiAddLine className={"size-5 text-neutral-400"} />
-            </Avatar>
+            {room.participant_profiles.map((participant) => (
+              <Avatar key={participant.user_id} className={"size-10"}>
+                <AvatarImage src={participant.user_profile_img} alt="@shadcn" />
+                <AvatarFallback />
+              </Avatar>
+            ))}
+            {/* 남아있는 자리만큼 렌더링 */}
+            {[...Array(room.max_participants - room.participant_count)].map(
+              (_, i) => (
+                <Avatar
+                  key={i}
+                  className={
+                    "flex size-10 items-center justify-center border-2 border-dashed"
+                  }
+                >
+                  <RiAddLine className={"size-5 text-neutral-400"} />
+                </Avatar>
+              ),
+            )}
           </div>
         </div>
       </Link>

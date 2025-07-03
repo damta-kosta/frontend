@@ -11,8 +11,8 @@ export type RoomListItem = {
   room_id: string;
   title: string;
   description: string;
-  room_scheduled: string | Date;
-  created_at: string | Date;
+  room_scheduled: string;
+  created_at: string;
   thumbnailBase64: string | null;
   participant_profiles: Participant[];
   participant_count: number;
@@ -23,5 +23,19 @@ export type RoomListItem = {
 export type RoomListResponse = {
   rooms: RoomListItem[];
   hasNext: boolean;
-  nextCursor: string | Date | null;
+  nextCursor: string | null;
+};
+
+// 모임 상세 정보
+export type RoomListDetail = {
+  room_id: string;
+  title: string;
+  description: string;
+  room_scheduled: string;
+  created_at: string;
+  thumbnailBase64: string | null;
+  participants: Participant[];
+  participant_count: number;
+  max_participants: number;
+  host_nickname: string;
 };

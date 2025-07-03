@@ -1,10 +1,15 @@
 import { Link, useSearchParams } from "react-router";
 import { cn } from "@/lib/utils.ts";
+import { useEffect } from "react";
 
 export default function SortTabs() {
   const [searchParams] = useSearchParams();
   const sort = searchParams.get("sort");
   const isLatest = sort === "latest" || !sort;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" }); // 부드럽게 스크롤
+  }, [sort]);
 
   return (
     <div className={"relative grid h-[50px] grid-cols-2 font-bold"}>
@@ -21,7 +26,7 @@ export default function SortTabs() {
         />
       </Link>
       <Link
-        to="?sort=deadline"
+        to="?sort=scheduled"
         className="flex h-full w-full flex-col items-center justify-center hover:bg-neutral-400/10"
       >
         <p className={cn({ "text-neutral-400": isLatest })}>마감순</p>
