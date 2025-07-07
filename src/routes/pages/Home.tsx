@@ -121,8 +121,11 @@ export default function HomePage() {
         ) : (
           <>
             {/* 피드 */}
-            {postData.community.map((post) => (
-              <CommunityFeed key={post.community_id} post={post} />
+            {postData.community.map((post, index) => (
+              <CommunityFeed
+                key={`${post.community_id}-${index}`}
+                post={post}
+              />
             ))}
 
             {/* 스크롤 감지 중 로딩 */}

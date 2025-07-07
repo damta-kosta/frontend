@@ -10,6 +10,10 @@ import { Button } from "@/components/ui/button.tsx";
 export default function LoginPage() {
   const navigate = useNavigate();
 
+  const handleLogin = async () => {
+    window.location.href = "/api/auth/kakao/login";
+  };
+
   return (
     <>
       <Dialog defaultOpen={true} onOpenChange={() => navigate(-1)}>
@@ -35,6 +39,7 @@ export default function LoginPage() {
                 "w-full max-w-[240px] rounded-lg py-6 text-lg text-black"
               }
               style={{ background: "#FEE500" }}
+              onClick={handleLogin}
             >
               <img
                 src={"src/assets/kakao.svg"}

@@ -10,17 +10,19 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog.tsx";
 import { useState } from "react";
+import { useAuthStore } from "@/stores/useAuthStore.ts";
 
 export default function PrivateRoute({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isAuth = true;
+  const { isLoggedIn } = useAuthStore();
+
   const [homeRedirect, setHomeRedirect] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState(false);
 
-  if (!isAuth) {
+  if (!isLoggedIn) {
     if (homeRedirect) {
       return <Navigate to="/" replace />;
     } else if (loginRedirect) {
@@ -28,7 +30,7 @@ export default function PrivateRoute({
     }
 
     return (
-      <AlertDialog open>
+      <AlertDialog open={!isLoggedIn}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>로그인이 필요합니다</AlertDialogTitle>

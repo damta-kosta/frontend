@@ -30,7 +30,7 @@ export default function CommentList({ postId }: Props) {
       if (!postId) return;
 
       const data: CommentResponse = await axios
-        .get(`/api/${postId}/comments`)
+        .get(`/api/comments/${postId}/comments`)
         .then((res) => res.data);
       setCommentData(data);
     };
@@ -45,7 +45,7 @@ export default function CommentList({ postId }: Props) {
 
       const data: CommentResponse = await axios
         .get(
-          `/api/${postId}/comments?cursor=${commentData.nextCursor}&limit=10`,
+          `/api/comments/${postId}/comments?curosr=${commentData.nextCursor}&limit=10`,
         )
         .then((res) => res.data);
       setCommentData(data);
@@ -55,9 +55,9 @@ export default function CommentList({ postId }: Props) {
   }, [inView, commentData.hasNext, commentData.nextCursor]);
 
   return (
-    <div className={"flex flex-col gap-5 border-t"}>
+    <div className={"mt-10 flex flex-col gap-1 border-t"}>
       {commentData?.comments.map((comment) => (
-        <div className={"mt-10 flex gap-3 py-5"}>
+        <div className={"flex gap-3 py-3"}>
           <Avatar className={"size-10"}>
             <div
               className={

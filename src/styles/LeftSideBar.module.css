@@ -14,3 +14,10 @@
     /*font-family: 'SANJUGotgam', sans-serif;*/
     font-family: 'ChangwonDangam', sans-serif;
 }
+
+.nodrag{
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-use-select: none;
+    user-select: none;
+}

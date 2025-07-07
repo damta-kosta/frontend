@@ -1,5 +1,6 @@
 import { Outlet } from "react-router";
 import LeftSideBar from "@/components/LeftSideBar.tsx";
+import { Toaster } from "@/components/ui/sonner.tsx";
 
 export default function DefaultLayout() {
   return (
@@ -9,6 +10,7 @@ export default function DefaultLayout() {
         <div className={"col-span-4 flex"}>
           <Outlet />
         </div>
+        <Toaster richColors position={"bottom-center"} />
       </div>
     </>
   );

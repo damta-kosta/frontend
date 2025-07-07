@@ -4,8 +4,8 @@ import SortTabs from "@/components/group/SortTabs.tsx";
 import Group from "@/components/group/Group.tsx";
 import { Button } from "@/components/ui/button.tsx";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import type { RoomListResponse } from "@/types/Room.ts";
+import axios from "axios";
 
 export default function GroupPage() {
   const [searchParams] = useSearchParams();

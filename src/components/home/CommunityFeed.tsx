@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import { RiLink, RiMoreFill } from "react-icons/ri";
+import { toast } from "sonner";
 
 type Props = {
   post: CommunityItem;
@@ -22,9 +23,9 @@ type Props = {
 export default function CommunityFeed({ post }: Props) {
   const handleCopyLink = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
-    await navigator.clipboard.writeText(
-      `${window.location.href}post/${post.community_id}`,
-    );
+    await navigator.clipboard
+      .writeText(`${window.location.href}post/${post.community_id}`)
+      .then(() => toast.success("복사되었습니다!"));
   };
 
   return (

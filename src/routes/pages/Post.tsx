@@ -1,18 +1,25 @@
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { RiArrowLeftLine } from "react-icons/ri";
+import { RiArrowLeftLine, RiLink, RiMoreFill } from "react-icons/ri";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "../../components/ui/avatar.tsx";
+} from "@/components/ui/avatar.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/ui/button.tsx";
 import type { Post } from "@/types/Community.ts";
-import axios from "axios";
 import { formatTweetTime } from "@/lib/formatTweetTime.ts";
 import CommentList from "@/components/post/CommentList.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.tsx";
+import { toast } from "sonner";
+import axios from "axios";
 
 export default function PostPage() {
   const { postId } = useParams();
@@ -22,6 +29,29 @@ export default function PostPage() {
   const [postData, setPostData] = useState<Post>();
 
   const [loaded, setLoaded] = useState(false);
+
+  const [width, setWidth] = useState<number>();
+
+  const handleCopyLink = async (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    await navigator.clipboard
+      .writeText(window.location.href)
+      .then(() => toast.success("복사되었습니다!"));
+  };
+
+  useEffect(() => {
+    const updateWidth = () => {
+      const container = document.getElementById("main-scroll-container");
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        setWidth(rect.width - 17);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
 
   // 게시글 API 받아오기
   useEffect(() => {
@@ -57,23 +87,43 @@ export default function PostPage() {
       {postData && (
         <div className={"relative flex h-full flex-col gap-4 px-5 pt-5 pb-10"}>
           {/* 작성자 정보 */}
-          <div className={"flex items-center gap-3"}>
-            <Avatar className={"size-10"}>
-              <div
-                className={
-                  "absolute inset-0 cursor-pointer bg-neutral-800/20 opacity-0 transition-opacity duration-200 hover:opacity-100"
-                }
-              ></div>
-              <AvatarImage src={postData.writer_profile_img} alt="avatar" />
-              <AvatarFallback />
-            </Avatar>
-            <p className={"cursor-pointer font-bold"}>
-              {postData.writer_nickname}
-              <span className={"text-foreground/40 pl-2 font-medium"}>
-                {formatTweetTime(postData.create_at)}
-              </span>
-            </p>
+          <div className={"flex justify-between"}>
+            <div className={"flex items-center gap-3"}>
+              <Avatar className={"size-10"}>
+                <div
+                  className={
+                    "absolute inset-0 cursor-pointer bg-neutral-800/20 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                  }
+                ></div>
+                <AvatarImage src={postData.writer_profile_img} alt="avatar" />
+                <AvatarFallback />
+              </Avatar>
+              <p className={"cursor-pointer font-bold"}>
+                {postData.writer_nickname}
+                <span className={"text-foreground/40 pl-2 font-medium"}>
+                  {formatTweetTime(postData.create_at)}
+                </span>
+              </p>
+            </div>
+            {/* 드랍다운 메뉴 */}
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={"h-fit rounded-full p-1.5 hover:bg-neutral-400/20"}
+              >
+                <RiMoreFill className={"text-foreground/50"} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  className={"flex justify-between"}
+                  onClick={handleCopyLink}
+                >
+                  <span>링크복사</span>
+                  <RiLink />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+
           {/*  게시글 정보 */}
           <p>{postData.content}</p>
           {/*  이미지 정보 */}
@@ -98,11 +148,14 @@ export default function PostPage() {
       )}
 
       {/* 댓글 작성 */}
-      <div className="bg-background sticky bottom-0 z-10 flex items-center gap-3 border-t px-5 py-3">
-        <input className="box-border h-[40px] w-full rounded-full border px-5 leading-none" />
+      <div
+        className="bg-background fixed bottom-0 z-10 flex w-full items-center gap-3 border-t px-5 py-3"
+        style={{ width: width }}
+      >
+        <input className="box-border h-10 w-full rounded-full border px-5 leading-none" />
         <button
           className={
-            "bg-primary text-background h-full w-20 rounded-full font-bold"
+            "bg-primary text-background h-10 w-20 rounded-full font-bold"
           }
         >
           댓글

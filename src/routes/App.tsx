@@ -1,13 +1,13 @@
-import { Route, Routes, useLocation } from "react-router";
-import DefaultLayout from "./layouts/Default.tsx";
-import ChatListPage from "./pages/ChatList.tsx";
-import HomePage from "./pages/Home.tsx";
-import LoginPage from "./pages/Login.tsx";
-import UserPage from "./pages/User.tsx";
-import ContentSidebarLayout from "./layouts/ContentSidebar.tsx";
-import { ThemeProvider } from "../components/ThemeProvider.tsx";
-import PrivateRoute from "../components/PrivateRoute.tsx";
-import PostPage from "./pages/Post.tsx";
+import { type Location, Route, Routes, useLocation } from "react-router";
+import DefaultLayout from "@/routes/layouts/Default.tsx";
+import ChatListPage from "@/routes/pages/ChatList.tsx";
+import HomePage from "@/routes/pages/Home.tsx";
+import LoginPage from "@/routes/pages/Login.tsx";
+import UserPage from "@/routes/pages/User.tsx";
+import ContentSidebarLayout from "@/routes/layouts/ContentSidebar.tsx";
+import { ThemeProvider } from "@/components/ThemeProvider.tsx";
+import PrivateRoute from "@/components/PrivateRoute.tsx";
+import PostPage from "@/routes/pages/Post.tsx";
 import NotFoundPage from "@/routes/pages/NotFound.tsx";
 import SettingPage from "@/routes/pages/Setting.tsx";
 import GroupCreate from "@/routes/pages/GroupCreate.tsx";
@@ -17,6 +17,13 @@ import GroupDetailPage from "@/routes/pages/GroupDetail.tsx";
 import dayjs from "dayjs";
 import "dayjs/locale/ko.js";
 import relativeTime from "dayjs/plugin/relativeTime";
+import WritePage from "@/routes/pages/Write.tsx";
+import AuthCallback from "@/routes/pages/AuthCallback.tsx";
+import { useAuthStore } from "@/stores/useAuthStore.ts";
+import { useEffect } from "react";
+import api from "@/lib/api.ts";
+import type { User } from "@/types/User.ts";
+import axios from "axios";
 
 dayjs.locale("ko");
 dayjs.extend(relativeTime);
@@ -25,10 +32,47 @@ export default function App() {
   const location = useLocation();
   const state = location.state as { background?: Location };
   const background = state?.background;
+  const { login, isLoggedIn } = useAuthStore();
+
+  const isModalPath =
+    location.pathname === "/login" || location.pathname === "/write";
+
+  const fallbackBackground: Location = {
+    pathname: "/",
+    search: "",
+    hash: "",
+    state: null,
+    key: "fallback-home",
+  };
+
+  const effectiveBackground =
+    background || (isModalPath ? fallbackBackground : undefined);
+
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    const fetchLogin = async () => {
+      try {
+        const data: User = await api
+          .get("/api/users/me")
+          .then((res) => res.data);
+        login(data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    if (!isLoggedIn && token != null) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      fetchLogin();
+    }
+  }, []);
 
   return (
     <ThemeProvider defaultTheme={"system"} storageKey={"vite-ui-theme"}>
-      <Routes location={background || location}>
+      <Routes location={effectiveBackground || location}>
+        {/* 카카오 로그인 콜백 */}
+        <Route path={"/auth/kakao/callback"} element={<AuthCallback />} />
+
         <Route path={"/"} element={<DefaultLayout />}>
           <Route
             path={"chat"}
@@ -75,10 +119,12 @@ export default function App() {
         </Route>
       </Routes>
 
-      {/* 로그인 모달 */}
-      {background && (
+      {effectiveBackground && (
         <Routes>
+          {/* 로그인 모달 */}
           <Route path={"/login"} element={<LoginPage />} />
+          {/* 글쓰기 모달 */}
+          <Route path={"/write"} element={<WritePage />} />
         </Routes>
       )}
     </ThemeProvider>

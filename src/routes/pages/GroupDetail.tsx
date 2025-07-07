@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { cn } from "@/lib/utils.ts";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import type { RoomListDetail } from "@/types/Room.ts";
 import dayjs from "dayjs";
 import {
@@ -12,6 +11,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar.tsx";
+import axios from "axios";
 
 export default function GroupDetailPage() {
   const { groupId } = useParams();

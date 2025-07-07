@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-import RightSideBar from "../../components/RightSideBar.tsx";
+import RightSideBar from "@/components/RightSideBar.tsx";
 import ScrollControl from "@/components/ScrollControl.tsx";
 
 export default function ContentSidebarLayout() {
@@ -10,7 +10,7 @@ export default function ContentSidebarLayout() {
         <div
           id="main-scroll-container"
           className={
-            "col-span-3 flex flex-col overflow-y-auto border-r xl:col-span-2"
+            "relative col-span-3 flex flex-col overflow-y-auto border-r xl:col-span-2"
           }
         >
           <Outlet />
