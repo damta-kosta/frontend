@@ -26,7 +26,7 @@ export default function CommentList({ postId }: Props) {
   });
 
   useEffect(() => {
-    const fetchCommentData = async () => {
+    const getCommentData = async () => {
       if (!postId) return;
 
       const data: CommentResponse = await axios
@@ -35,7 +35,7 @@ export default function CommentList({ postId }: Props) {
       setCommentData(data);
     };
 
-    fetchCommentData();
+    getCommentData();
   }, [postId]);
 
   useEffect(() => {

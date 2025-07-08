@@ -11,15 +11,30 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar.tsx";
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
+import { useAuthStore } from "@/stores/useAuthStore.ts";
+import { toast } from "sonner";
 
 export default function GroupDetailPage() {
   const { groupId } = useParams();
+  const { isLoggedIn, user } = useAuthStore();
+
   const navigate = useNavigate();
 
   const [roomDetailData, setRoomDetailData] = useState<RoomListDetail>();
 
   const [loaded, setLoaded] = useState(false);
+
+  const handleJoinRoom = async () => {
+    try {
+      await axios.post(`/api/rooms/${groupId}/joinRoom`).then(() => {
+        window.location.reload();
+      });
+    } catch (e) {
+      const err = e as AxiosError<{ message: string }>;
+      toast.error(err.response?.data.message || "알 수 없는 오류입니다.");
+    }
+  };
 
   useEffect(() => {
     const fetchGroupDetail = async () => {
@@ -133,13 +148,21 @@ export default function GroupDetailPage() {
       </div>
 
       {/* 신청 버튼 */}
-      <Button
-        className={
-          "sticky bottom-0 z-10 w-full rounded-none py-6 text-lg font-bold tracking-widest"
-        }
-      >
-        신청하기
-      </Button>
+      {isLoggedIn && roomDetailData && (
+        <Button
+          disabled={
+            !!roomDetailData.participants.find(
+              (item) => item.user_id === user?.user_id,
+            )
+          }
+          onClick={handleJoinRoom}
+          className={
+            "sticky bottom-0 z-10 w-full rounded-none py-6 text-lg font-bold tracking-widest"
+          }
+        >
+          신청하기
+        </Button>
+      )}
     </>
   );
 }

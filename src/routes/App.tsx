@@ -19,11 +19,6 @@ import "dayjs/locale/ko.js";
 import relativeTime from "dayjs/plugin/relativeTime";
 import WritePage from "@/routes/pages/Write.tsx";
 import AuthCallback from "@/routes/pages/AuthCallback.tsx";
-import { useAuthStore } from "@/stores/useAuthStore.ts";
-import { useEffect } from "react";
-import api from "@/lib/api.ts";
-import type { User } from "@/types/User.ts";
-import axios from "axios";
 
 dayjs.locale("ko");
 dayjs.extend(relativeTime);
@@ -32,7 +27,6 @@ export default function App() {
   const location = useLocation();
   const state = location.state as { background?: Location };
   const background = state?.background;
-  const { login, isLoggedIn } = useAuthStore();
 
   const isModalPath =
     location.pathname === "/login" || location.pathname === "/write";
@@ -47,25 +41,6 @@ export default function App() {
 
   const effectiveBackground =
     background || (isModalPath ? fallbackBackground : undefined);
-
-  useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get("token");
-    const fetchLogin = async () => {
-      try {
-        const data: User = await api
-          .get("/api/users/me")
-          .then((res) => res.data);
-        login(data);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    if (!isLoggedIn && token != null) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      fetchLogin();
-    }
-  }, []);
 
   return (
     <ThemeProvider defaultTheme={"system"} storageKey={"vite-ui-theme"}>
@@ -124,7 +99,14 @@ export default function App() {
           {/* 로그인 모달 */}
           <Route path={"/login"} element={<LoginPage />} />
           {/* 글쓰기 모달 */}
-          <Route path={"/write"} element={<WritePage />} />
+          <Route
+            path={"/write"}
+            element={
+              <PrivateRoute>
+                <WritePage />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       )}
     </ThemeProvider>

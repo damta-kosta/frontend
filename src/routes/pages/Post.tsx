@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import { toast } from "sonner";
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
 
 export default function PostPage() {
   const { postId } = useParams();
@@ -27,10 +27,9 @@ export default function PostPage() {
   const location = useLocation();
 
   const [postData, setPostData] = useState<Post>();
+  const [comment, setComment] = useState<string>("");
 
   const [loaded, setLoaded] = useState(false);
-
-  const [width, setWidth] = useState<number>();
 
   const handleCopyLink = async (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -39,19 +38,19 @@ export default function PostPage() {
       .then(() => toast.success("복사되었습니다!"));
   };
 
-  useEffect(() => {
-    const updateWidth = () => {
-      const container = document.getElementById("main-scroll-container");
-      if (container) {
-        const rect = container.getBoundingClientRect();
-        setWidth(rect.width - 17);
-      }
-    };
+  const handleWriteComment = async () => {
+    if (!postId) return;
 
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
+    try {
+      await axios.post(`/api/comments/${postId}/write`, {
+        comment_body: comment,
+      });
+      window.location.reload();
+    } catch (e) {
+      const err = e as AxiosError<{ message: string }>;
+      toast.error(err.response?.data.message || "알 수 없는 오류입니다.");
+    }
+  };
 
   // 게시글 API 받아오기
   useEffect(() => {
@@ -85,7 +84,11 @@ export default function PostPage() {
       </div>
 
       {postData && (
-        <div className={"relative flex h-full flex-col gap-4 px-5 pt-5 pb-10"}>
+        <div
+          className={
+            "relative flex h-full flex-col gap-4 overflow-y-auto px-5 pt-5 pb-10"
+          }
+        >
           {/* 작성자 정보 */}
           <div className={"flex justify-between"}>
             <div className={"flex items-center gap-3"}>
@@ -148,12 +151,14 @@ export default function PostPage() {
       )}
 
       {/* 댓글 작성 */}
-      <div
-        className="bg-background fixed bottom-0 z-10 flex w-full items-center gap-3 border-t px-5 py-3"
-        style={{ width: width }}
-      >
-        <input className="box-border h-10 w-full rounded-full border px-5 leading-none" />
+      <div className="bg-background bottom-0 z-10 flex w-full items-center gap-3 border-t px-5 py-3">
+        <input
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="box-border h-10 w-full rounded-full border px-5 leading-none"
+        />
         <button
+          onClick={handleWriteComment}
           className={
             "bg-primary text-background h-10 w-20 rounded-full font-bold"
           }

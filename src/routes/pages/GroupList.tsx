@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button.tsx";
 import { useEffect, useRef, useState } from "react";
 import type { RoomListResponse } from "@/types/Room.ts";
 import axios from "axios";
+import { useAuthStore } from "@/stores/useAuthStore.ts";
 
 export default function GroupPage() {
   const [searchParams] = useSearchParams();
+  const { isLoggedIn } = useAuthStore();
 
   const [roomData, setRoomData] = useState<RoomListResponse>({
     rooms: [],
@@ -65,11 +67,17 @@ export default function GroupPage() {
           className={"flex h-[50px] w-full items-center justify-between px-5"}
         >
           <p className={"text-xl font-bold"}>모임 리스트</p>
-          <Link to={"/group/create"}>
-            <Button variant={"ghost"} size={"icon"} className={"rounded-full"}>
-              <RiUserAddLine className={"size-6"} />
-            </Button>
-          </Link>
+          {isLoggedIn && (
+            <Link to={"/group/create"}>
+              <Button
+                variant={"ghost"}
+                size={"icon"}
+                className={"rounded-full"}
+              >
+                <RiUserAddLine className={"size-6"} />
+              </Button>
+            </Link>
+          )}
         </div>
         <SortTabs />
       </div>

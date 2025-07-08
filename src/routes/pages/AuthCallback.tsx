@@ -18,6 +18,7 @@ export default function AuthCallback() {
           setCookie("token", token, {
             maxAge: 60 * 60 * 24 * 3,
             sameSite: "lax",
+            path: "/",
           });
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           await axios.get("/api/users/me").then((res) => login(res.data));
