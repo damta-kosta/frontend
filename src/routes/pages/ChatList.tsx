@@ -1,9 +1,29 @@
 import { Outlet, useParams } from "react-router";
 import ChatRoom from "@/components/chat/ChatRoom.tsx";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import type { ChatMyRoom } from "@/types/Chat.ts";
+import { toast } from "sonner";
 
 export default function ChatListPage() {
   const { chatId } = useParams();
   const showChatOnly = !!chatId;
+  const [chatList, setChatList] = useState<ChatMyRoom[]>([]);
+
+  useEffect(() => {
+    const fetchChatList = async () => {
+      try {
+        await axios
+          .get("/api/chat/myRooms")
+          .then((res) => setChatList(res.data));
+      } catch (e) {
+        console.error(e);
+        toast.error("불러오는데 실패했습니다.");
+      }
+    };
+
+    fetchChatList();
+  }, []);
 
   return (
     <div className="grid w-full grid-cols-1 lg:grid-cols-5">
@@ -16,8 +36,8 @@ export default function ChatListPage() {
         </div>
 
         <div className="py-5">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <ChatRoom key={i} chatId={(i + 1).toString()} />
+          {chatList.map((chat: ChatMyRoom) => (
+            <ChatRoom key={chat.room_id} chat={chat} />
           ))}
         </div>
       </div>

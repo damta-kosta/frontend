@@ -46,8 +46,8 @@ export default function Group({ room }: Props) {
         <div className={"flex w-full flex-col justify-between"}>
           {/* 모임 정보 */}
           <div className={"flex flex-col gap-2"}>
-            <p className={"text-2xl font-bold"}>{room.title}</p>
-            <p className={""}>{room.description}</p>
+            <p className={"line-clamp-1 text-2xl font-bold"}>{room.title}</p>
+            <p className={"line-clamp-1"}>{room.description}</p>
             <div className={"flex items-center gap-2 text-neutral-500"}>
               <RiCalendar2Line className={"size-5"} />
               <p className={""}>

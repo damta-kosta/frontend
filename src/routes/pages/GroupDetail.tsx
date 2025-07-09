@@ -1,4 +1,11 @@
-import { RiAddLine, RiArrowLeftLine, RiVipCrownFill } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiArrowLeftLine,
+  RiDeleteBinLine,
+  RiEditLine,
+  RiMore2Fill,
+  RiVipCrownFill,
+} from "react-icons/ri";
 import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button.tsx";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
@@ -14,16 +21,21 @@ import {
 import axios, { type AxiosError } from "axios";
 import { useAuthStore } from "@/stores/useAuthStore.ts";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu.tsx";
+import GroupDeleteModal from "@/components/group/GroupDeleteModal.tsx";
 
 export default function GroupDetailPage() {
+  const navigate = useNavigate();
   const { groupId } = useParams();
   const { isLoggedIn, user } = useAuthStore();
-
-  const navigate = useNavigate();
-
   const [roomDetailData, setRoomDetailData] = useState<RoomListDetail>();
-
   const [loaded, setLoaded] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const handleJoinRoom = async () => {
     try {
@@ -31,9 +43,25 @@ export default function GroupDetailPage() {
         window.location.reload();
       });
     } catch (e) {
-      const err = e as AxiosError<{ message: string }>;
-      toast.error(err.response?.data.message || "알 수 없는 오류입니다.");
+      const err = e as AxiosError<{ error: string }>;
+      toast.error(err.response?.data.error || "알 수 없는 오류입니다.");
     }
+  };
+
+  const joinButtonState = (): { disabled: boolean; label: string } => {
+    if (!roomDetailData || !user) return { disabled: true, label: "신청하기" };
+
+    const isAlreadyJoind = roomDetailData.participants.some(
+      (item) => item.user_id === user.user_id,
+    );
+    if (isAlreadyJoind)
+      return { disabled: true, label: "해당 모임에 참가하고 있습니다" };
+
+    const isFull =
+      roomDetailData.participant_count === roomDetailData.max_participants;
+    if (isFull) return { disabled: true, label: "인원이 마감되었습니다" };
+
+    return { disabled: false, label: "신청하기" };
   };
 
   useEffect(() => {
@@ -54,7 +82,7 @@ export default function GroupDetailPage() {
         {/* 상단 헤더 */}
         <div
           className={
-            "bg-background sticky top-0 z-10 flex h-[50px] shrink-0 items-center border-b px-4"
+            "bg-background sticky top-0 z-10 flex h-[50px] shrink-0 items-center justify-between border-b px-4"
           }
         >
           <Button
@@ -65,12 +93,48 @@ export default function GroupDetailPage() {
           >
             <RiArrowLeftLine className={"size-7"} />
           </Button>
+          {roomDetailData?.participants[0].user_id === user?.user_id && (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    className={"rounded-full"}
+                  >
+                    <RiMore2Fill className={"size-5"} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    className={"cursor-pointer"}
+                    onClick={() => navigate(`/group/edit/${groupId}`)}
+                  >
+                    <RiEditLine />
+                    <p>수정하기</p>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    variant={"destructive"}
+                    onClick={() => setDeleteModalOpen(true)}
+                    className={"cursor-pointer"}
+                  >
+                    <RiDeleteBinLine />
+                    <p>삭제하기</p>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
+        <GroupDeleteModal
+          open={deleteModalOpen}
+          onCancel={() => setDeleteModalOpen(false)}
+        />
 
         {roomDetailData && (
           <>
             {/* 커버 이미지 */}
-            <div className={"relative h-full w-full"}>
+            <div className={"relative h-1/2 w-full"}>
               {!loaded && (
                 <Skeleton className="absolute inset-0 rounded-none" />
               )}
@@ -85,10 +149,11 @@ export default function GroupDetailPage() {
                 onError={() => setLoaded(false)}
               />
             </div>
+
             {/* 본문 */}
             <div
               className={
-                "bg-background absolute bottom-0 left-0 flex h-1/3 w-full flex-col gap-5 rounded-t-xl px-5 py-10 xl:h-1/2"
+                "bg-background absolute bottom-0 left-0 flex h-[50vh] w-full flex-col gap-5 rounded-t-xl px-5 py-10"
               }
             >
               <h1 className={"truncate text-3xl font-bold"}>
@@ -150,17 +215,13 @@ export default function GroupDetailPage() {
       {/* 신청 버튼 */}
       {isLoggedIn && roomDetailData && (
         <Button
-          disabled={
-            !!roomDetailData.participants.find(
-              (item) => item.user_id === user?.user_id,
-            )
-          }
+          disabled={joinButtonState().disabled}
           onClick={handleJoinRoom}
           className={
             "sticky bottom-0 z-10 w-full rounded-none py-6 text-lg font-bold tracking-widest"
           }
         >
-          신청하기
+          {joinButtonState().label}
         </Button>
       )}
     </>

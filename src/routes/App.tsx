@@ -19,6 +19,7 @@ import "dayjs/locale/ko.js";
 import relativeTime from "dayjs/plugin/relativeTime";
 import WritePage from "@/routes/pages/Write.tsx";
 import AuthCallback from "@/routes/pages/AuthCallback.tsx";
+import GroupEdit from "@/routes/pages/GroupEdit.tsx";
 
 dayjs.locale("ko");
 dayjs.extend(relativeTime);
@@ -74,6 +75,15 @@ export default function App() {
               element={
                 <PrivateRoute>
                   <GroupCreate />
+                </PrivateRoute>
+              }
+            />
+            {/* 모임 수정 */}
+            <Route
+              path={"group/edit/:groupId"}
+              element={
+                <PrivateRoute>
+                  <GroupEdit />
                 </PrivateRoute>
               }
             />
