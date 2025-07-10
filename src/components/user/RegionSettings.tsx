@@ -10,7 +10,12 @@ type Props = {
   setIsEditState: React.Dispatch<
     React.SetStateAction<{ nickname: boolean; bio: boolean; location: boolean }>
   >;
-  form: UseFormReturn<{ nickname: string; bio: string; location: string }>;
+  form: UseFormReturn<{
+    nickname: string;
+    bio: string;
+    location: string;
+    profile_img: string;
+  }>;
   setUser: React.Dispatch<React.SetStateAction<UserProfile | undefined>>;
 };
 

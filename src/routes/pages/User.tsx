@@ -9,6 +9,7 @@ type FormData = {
   nickname: string;
   bio: string;
   location: string;
+  profile_img: string;
 };
 
 export default function UserPage() {

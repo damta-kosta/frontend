@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button.tsx";
 import EditableField from "@/components/user/EditableField.tsx";
 import axios, { type AxiosError } from "axios";
 import { toast } from "sonner";
+import { convertToBase64 } from "@/lib/convertToBase64.ts";
+import { Input } from "@/components/ui/input.tsx";
+import { useRef } from "react";
 
 type Props = {
   user: UserProfile;
@@ -16,7 +19,12 @@ type Props = {
   setIsEditState: React.Dispatch<
     React.SetStateAction<{ nickname: boolean; bio: boolean; location: boolean }>
   >;
-  form: UseFormReturn<{ nickname: string; bio: string; location: string }>;
+  form: UseFormReturn<{
+    nickname: string;
+    bio: string;
+    location: string;
+    profile_img: string;
+  }>;
   setUser: React.Dispatch<React.SetStateAction<UserProfile | undefined>>;
 };
 
@@ -28,6 +36,13 @@ export default function ProfileSection({
   setUser,
 }: Props) {
   const { register, watch, getValues, setValue } = form;
+
+  const thumbnail = watch("profile_img");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileInput = () => {
+    fileInputRef.current?.click(); // input 클릭 트리거
+  };
 
   // 닉네임 저장 API 호출
   const saveNickname = async () => {
@@ -75,18 +90,53 @@ export default function ProfileSection({
     }
   };
 
+  // 프로필 이미지 저장 API
+  const saveProfileImg = async () => {
+    const newProfileImg = getValues("profile_img");
+    if (newProfileImg === user.user_profile_img) return;
+
+    try {
+      await axios
+        .put("/api/users/me/profileImg", {
+          user_profile_img: newProfileImg,
+        })
+        .then(() =>
+          setUser((prev) => {
+            if (!prev) return prev;
+            return { ...prev, user_profile_img: newProfileImg };
+          }),
+        );
+    } catch (e) {
+      const err = e as AxiosError<{ message: string }>;
+      toast.error(err.response?.data.message || "알 수 없는 오류입니다.");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-10">
       <div className="flex gap-5 pb-10">
         <div className="flex flex-col gap-2">
           <Avatar className="mb-2 size-28">
-            <AvatarImage src={user.user_profile_img} alt="user" />
+            <AvatarImage src={thumbnail || user.user_profile_img} alt="user" />
             <AvatarFallback />
           </Avatar>
-          <Button className="font-bold">이미지 업로드</Button>
-          <Button variant="ghost" className="text-primary font-bold">
-            이미지 제거
+          <Button onClick={handleFileInput} className="font-bold">
+            이미지 업로드
           </Button>
+          <Input
+            type={"file"}
+            ref={fileInputRef}
+            accept={".png, .jpg, .webp, .jpeg"}
+            className={"hidden"}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const base64 = await convertToBase64(file);
+                setValue("profile_img", base64);
+                saveProfileImg();
+              }
+            }}
+          />
         </div>
 
         <div className="flex w-full flex-col gap-5">
