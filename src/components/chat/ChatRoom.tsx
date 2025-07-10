@@ -37,8 +37,8 @@ export default function ChatRoom({ chat }: Props) {
             }}
           />
         </div>
-        <div className="flex h-[75px] w-full flex-col items-start">
-          <p className={"truncate font-bold"}>{chat.room_title}</p>
+        <div className="flex h-[75px] w-full flex-col items-start overflow-hidden">
+          <p className={"line-clamp-1 font-bold"}>{chat.room_title}</p>
           <div className={"grid w-full grid-cols-3 gap-2"}>
             <p className={"col-span-2 line-clamp-2 w-full"}>최신 채팅 내역</p>
             <p className={"col-span-1 text-xs text-neutral-500"}>yyyy-MM-dd</p>

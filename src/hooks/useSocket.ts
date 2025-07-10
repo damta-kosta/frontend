@@ -7,7 +7,17 @@ import { useCookies } from "react-cookie";
 type Props = {
   roomId: string;
   userId: string;
+  onJoinRoom: ({
+    status,
+    room_ended,
+    error,
+  }: {
+    status: string;
+    room_ended?: boolean;
+    error?: string;
+  }) => void;
   onMessage: (msg: ChatInfo) => void;
+  onSyncMessage: (msgList: ChatInfo[]) => void;
   onTyping?: (userId: string) => void;
   onUserList?: (list: any[]) => void;
   onUserCount?: (count: number) => void;
@@ -16,7 +26,9 @@ type Props = {
 export const useChatSocket = ({
   roomId,
   userId,
+  onJoinRoom,
   onMessage,
+  onSyncMessage,
   onUserCount,
   onUserList,
   onTyping,
@@ -33,12 +45,36 @@ export const useChatSocket = ({
 
     socketRef.current = socket;
 
-    // joinRoom 이벤트 전송
     socket.on("connect", () => {
-      socket.emit("joinRoom", { roomId, userId });
+      // joinRoom 이벤트 전송
+      socket.emit(
+        "joinRoom",
+        { roomId, userId },
+        (response: {
+          status: string;
+          room_ended?: boolean;
+          error?: string;
+        }) => {
+          if (response.status === "ok") {
+            console.log("입장 성공");
+          } else {
+            console.error("입장 실패:", response.error);
+          }
+        },
+      );
+
+      // 초기 메세지 내역 받아오기
+      socket.once(
+        "syncAllChat",
+        ({ roomId, chat }: { roomId: string; chat: ChatInfo[] }) => {
+          onSyncMessage(chat);
+        },
+      );
     });
 
-    socket.on("chatMessage", (msg: ChatInfo) => onMessage(msg));
+    socket.on("chatMessage", (msg: ChatInfo) => {
+      onMessage(msg);
+    });
 
     if (onTyping) {
       socket.on("typing", ({ userId }) => {
@@ -58,19 +94,11 @@ export const useChatSocket = ({
     socket.on("error", (msg) => toast.error(msg));
 
     return () => {
-      socket.emit("leaveRoom");
-      socket.disconnect();
+      disconnect();
     };
-  }, [
-    roomId,
-    userId,
-    cookies.token,
-    onTyping,
-    onUserList,
-    onUserCount,
-    onMessage,
-  ]);
+  }, [roomId, userId, cookies.token]);
 
+  // 메세지 전송
   const sendMessage = (message: string) => {
     if (!message.trim()) return;
 
@@ -81,6 +109,7 @@ export const useChatSocket = ({
     });
   };
 
+  // 타이핑 이벤트 전송
   const sendTyping = () => {
     socketRef.current?.emit("typing", { roomId, userId });
   };
@@ -95,9 +124,15 @@ export const useChatSocket = ({
     });
   };
 
+  const disconnect = () => {
+    socketRef.current?.emit("leaveRoom");
+    socketRef.current?.disconnect();
+  };
+
   return {
     sendMessage,
     sendTyping,
     syncChat,
+    disconnect,
   };
 };

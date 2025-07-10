@@ -11,16 +11,16 @@ import {
 import { useState } from "react";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar.tsx";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { convertToBase64 } from "@/lib/convertToBase64.ts";
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton.tsx";
 
 type FormData = {
   roomTitle: string;
   roomDescription: string;
-  roomScheduled: Date;
+  roomScheduled: Date | null;
   roomThumbnailImg: string | null;
   maxParticipants: number;
 };
@@ -35,12 +35,13 @@ export default function GroupCreate() {
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
       roomTitle: "",
       roomDescription: "",
-      roomScheduled: new Date(),
+      roomScheduled: null,
       roomThumbnailImg: null,
       maxParticipants: 4,
     },
@@ -61,9 +62,9 @@ export default function GroupCreate() {
       await axios.post("/api/rooms", data);
       toast.success("모임이 성공적으로 생성되었습니다!");
       navigate("/group"); // 예: 생성 후 이동
-    } catch (error) {
-      console.error("모임 생성 실패:", error);
-      toast.error("모임 생성에 실패했습니다.");
+    } catch (e) {
+      const err = e as AxiosError<{ error: string }>;
+      toast.error(err.response?.data.error || "알 수 없는 오류입니다.");
     }
   });
 
@@ -125,60 +126,76 @@ export default function GroupCreate() {
           </div>
           <div>
             <h1 className={"pb-3 text-2xl font-bold"}>모임 일정</h1>
-            <div className={"flex gap-5"}>
-              {/* 날짜 */}
-              <div className="flex flex-col gap-3">
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date-picker"
-                      className="w-[240px] justify-between font-normal"
-                    >
-                      {date ? date.toLocaleDateString() : "날짜 선택"}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      captionLayout="dropdown"
-                      onSelect={(selectedDate) => {
-                        setDate(selectedDate);
-                        if (selectedDate && time) {
-                          const combined = combineDateTime(selectedDate, time);
-                          setValue("roomScheduled", combined);
+            <Controller
+              control={control}
+              name="roomScheduled"
+              rules={{ required: "모임 일정을 선택해주세요" }}
+              render={({ field }) => (
+                <div className="flex gap-5">
+                  {/* 날짜 선택 */}
+                  <div className="flex flex-col gap-3">
+                    <Popover open={open} onOpenChange={setOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          id="date-picker"
+                          className="w-[240px] justify-between font-normal"
+                          aria-invalid={!!errors.roomScheduled}
+                        >
+                          {date ? date.toLocaleDateString() : "날짜 선택"}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto overflow-hidden p-0"
+                        align="start"
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          captionLayout="dropdown"
+                          onSelect={(selectedDate) => {
+                            setDate(selectedDate);
+                            if (selectedDate && time) {
+                              const combined = combineDateTime(
+                                selectedDate,
+                                time,
+                              );
+                              field.onChange(combined);
+                            }
+                            setOpen(false);
+                          }}
+                          disabled={(d) => d < new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* 시간 입력 */}
+                  <div className="flex flex-col gap-3">
+                    <Input
+                      type="time"
+                      step="1"
+                      value={time}
+                      onChange={(e) => {
+                        const newTime = e.target.value;
+                        setTime(newTime);
+                        if (date) {
+                          const combined = combineDateTime(date, newTime);
+                          field.onChange(combined);
                         }
-                        setOpen(false);
                       }}
-                      disabled={(date) => date < new Date()}
+                      className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
                     />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              {/*  시간 */}
-              <div className="flex flex-col gap-3">
-                <Input
-                  type="time"
-                  id="time-picker"
-                  step="1"
-                  value={time}
-                  onChange={(e) => {
-                    const newTime = e.target.value;
-                    setTime(newTime);
-                    if (date) {
-                      const combined = combineDateTime(date, newTime);
-                      setValue("roomScheduled", combined);
-                    }
-                  }}
-                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                />
-              </div>
-            </div>
+                  </div>
+                </div>
+              )}
+            />
+            {errors.roomScheduled && (
+              <p role="alert" className="text-destructive pt-2 text-sm">
+                {errors.roomScheduled.message}
+              </p>
+            )}
           </div>
           <div>
             <h1 className={"pb-3 text-2xl font-bold"}>커버 이미지</h1>

@@ -1,7 +1,13 @@
 import { useNavigate, useParams } from "react-router";
 import { Button } from "@/components/ui/button.tsx";
-import { RiArrowDropDownLine, RiArrowLeftLine } from "react-icons/ri";
-import { useEffect, useState } from "react";
+import {
+  RiArrowDropDownLine,
+  RiArrowLeftLine,
+  RiDeleteBinLine,
+  RiEditLine,
+  RiLogoutBoxLine,
+} from "react-icons/ri";
+import { useEffect, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,12 +25,14 @@ import {
 } from "@/components/ui/avatar.tsx";
 import { LuSend } from "react-icons/lu";
 import MessageBubble from "@/components/chat/MessageBubble.tsx";
-import { Skeleton } from "@/components/ui/skeleton.tsx";
 import { cn } from "@/lib/utils.ts";
 import type { ChatInfo } from "@/types/Chat.ts";
 import { useAuthStore } from "@/stores/useAuthStore.ts";
 import { useChatSocket } from "@/hooks/useSocket.ts";
 import axios from "axios";
+import type { Participant } from "@/types/Room.ts";
+import dayjs from "dayjs";
+import ChatExitModal from "@/components/chat/ChatExitModal.tsx";
 
 export default function ChatDetailPage() {
   const { chatId } = useParams();
@@ -33,24 +41,36 @@ export default function ChatDetailPage() {
   const [open, setOpen] = useState(false);
   const [coverOpen, setCoverOpen] = useState(true);
   const [loaded, setLoaded] = useState(false);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [messages, setMessages] = useState<ChatInfo[]>([]);
   const [inputValue, setInputValue] = useState("");
+  const [exitModalOpen, setExitModalOpen] = useState(false);
 
-  const { sendMessage, sendTyping, syncChat } = useChatSocket({
+  // 채팅 업데이트 스크롤 ref
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  const { sendMessage, disconnect } = useChatSocket({
     roomId: chatId!,
     userId: user!.user_id,
+    onJoinRoom: (res) => {
+      console.log(res);
+    },
     onMessage: (msg) => {
       setMessages((prev) => [...prev, msg]);
+    },
+    onSyncMessage: (msgList) => {
+      setMessages(msgList);
     },
     onTyping: (userId) => {
       console.log(`${userId} is typing...`);
     },
     onUserList: (list) => {
-      console.log("접속자 목록", list);
+      // console.log("접속자 목록", list);
+      setParticipants(list);
     },
-    onUserCount: (count) => {
+    /*onUserCount: (count) => {
       console.log("접속자 수", count);
-    },
+    },*/
   });
 
   const handleSendMessage = () => {
@@ -68,16 +88,17 @@ export default function ChatDetailPage() {
 
   // 채팅 스크롤 올렸을 때 과거 메시지 가져오기
   useEffect(() => {
-    syncChat();
+    // syncChat();
 
-    const fetchAllChat = async () => {
-      await axios
-        .get(`/api/chat/${chatId}/allChat`)
-        .then((res) => setMessages(res.data.chat));
+    return () => {
+      disconnect(); // ✅ 페이지 벗어날 때 연결 끊기
     };
-
-    fetchAllChat();
   }, []);
+
+  useEffect(() => {
+    //   메세지 추가 시, 스크롤
+    bottomRef.current?.scrollIntoView();
+  }, [messages]);
 
   return (
     <>
@@ -85,7 +106,7 @@ export default function ChatDetailPage() {
         {/* 상단 헤더 */}
         <div
           className={
-            "bg-background sticky top-0 z-10 flex h-[50px] shrink-0 items-center border-b px-4"
+            "bg-background sticky top-0 z-10 flex h-[50px] shrink-0 items-center gap-2 px-4"
           }
         >
           <Button
@@ -96,8 +117,41 @@ export default function ChatDetailPage() {
           >
             <RiArrowLeftLine className={"size-7"} />
           </Button>
+          <div className="flex w-full items-center justify-between">
+            <p className={"text-2xl font-bold"}>모임명</p>
+            <DropdownMenu open={open} onOpenChange={setOpen}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={"rounded-full"}>
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="cursor-pointer">
+                    <RiEditLine />
+                    <p>수정하기</p>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant={"destructive"}
+                    onClick={() => setExitModalOpen(true)}
+                    className="cursor-pointer"
+                  >
+                    <RiLogoutBoxLine />
+                    <p>나가기</p>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-        {coverOpen && (
+        <ChatExitModal
+          open={exitModalOpen}
+          onCancel={() => setExitModalOpen(false)}
+        />
+
+        {/* 커버 이미지 */}
+        {/*{coverOpen && (
           <div className={"relative aspect-3/1"}>
             {!loaded && <Skeleton className="absolute inset-0" />}
             <img
@@ -110,48 +164,15 @@ export default function ChatDetailPage() {
               onLoad={() => setLoaded(true)}
             />
           </div>
-        )}
+        )}*/}
         <div className={"sticky flex flex-col gap-2 border-b px-5 py-3"}>
           {coverOpen && (
             <>
-              <div className="flex justify-between">
-                <p className={"text-3xl font-bold"}>모임명</p>
-                <DropdownMenu open={open} onOpenChange={setOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={"rounded-full"}
-                    >
-                      <MoreHorizontal />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[200px]">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem className="cursor-pointer">
-                        SUB1
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
-                        SUB2
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="cursor-pointer text-red-600">
-                        나가기
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-              <p className={"line-clamp-2"}>설명({chatId})</p>
               <div className={"flex gap-1"}>
-                {[...Array(4)].map((_, i) => (
-                  <Avatar key={i} className={"size-10"}>
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
+                {participants.map((user, index) => (
+                  <Avatar key={index} className={"size-10"}>
+                    <AvatarImage src={user.user_profile_img || ""} alt="user" />
+                    <AvatarFallback />
                   </Avatar>
                 ))}
               </div>
@@ -172,14 +193,31 @@ export default function ChatDetailPage() {
         </div>
 
         {/* 채팅 내역 */}
-        <div className={"mb-18 flex flex-col gap-5 overflow-y-auto p-5"}>
-          {messages.map((msg) => (
-            <MessageBubble
-              key={msg.chat_id}
-              isMine={msg.user_id === user?.user_id}
-              message={msg.chat_msg}
-            />
-          ))}
+        <div className={"mb-18 flex flex-col gap-3 overflow-y-auto p-5"}>
+          {messages.map((msg, index) => {
+            const currentDate = dayjs(msg.created_at).format("YYYY-MM-DD");
+            const prevDate =
+              index > 0
+                ? dayjs(messages[index - 1].created_at).format("YYYY-MM-DD")
+                : null;
+
+            const showDateSeparator = currentDate !== prevDate;
+
+            return (
+              <div key={msg.chat_id}>
+                {showDateSeparator && (
+                  <div className="my-2 text-center text-xs text-neutral-500">
+                    {dayjs(msg.created_at).format("YYYY년 M월 D일 (ddd)")}
+                  </div>
+                )}
+                <MessageBubble
+                  isMine={msg.user_id === user?.user_id}
+                  chat={msg}
+                />
+              </div>
+            );
+          })}
+          <div ref={bottomRef} />
         </div>
 
         {/*  채팅 입력 */}
@@ -196,10 +234,11 @@ export default function ChatDetailPage() {
             <input
               maxLength={255}
               placeholder={"작성하기"}
+              value={inputValue}
               className={"w-full focus:outline-0"}
               onChange={(e) => {
                 setInputValue(e.target.value);
-                sendTyping(); // ✅ 타이핑 이벤트 보내기
+                // sendTyping(); // ✅ 타이핑 이벤트 보내기
               }}
               onKeyDown={onKeyDown}
             />
