@@ -126,21 +126,14 @@ export default function ChatDetailPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuGroup>
-                  <DropdownMenuItem className="cursor-pointer">
-                    <RiEditLine />
-                    <p>수정하기</p>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    variant={"destructive"}
-                    onClick={() => setExitModalOpen(true)}
-                    className="cursor-pointer"
-                  >
-                    <RiLogoutBoxLine />
-                    <p>나가기</p>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
+                <DropdownMenuItem
+                  variant={"destructive"}
+                  onClick={() => setExitModalOpen(true)}
+                  className="cursor-pointer"
+                >
+                  <RiLogoutBoxLine />
+                  <p>나가기</p>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

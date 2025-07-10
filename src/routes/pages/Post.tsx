@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu.tsx";
 import { toast } from "sonner";
 import axios, { type AxiosError } from "axios";
+import CommentWrite from "@/components/post/CommentWrite.tsx";
 
 export default function PostPage() {
   const { postId } = useParams();
@@ -27,7 +28,6 @@ export default function PostPage() {
   const location = useLocation();
 
   const [postData, setPostData] = useState<Post>();
-  const [comment, setComment] = useState<string>("");
 
   const [loaded, setLoaded] = useState(false);
 
@@ -36,20 +36,6 @@ export default function PostPage() {
     await navigator.clipboard
       .writeText(window.location.href)
       .then(() => toast.success("복사되었습니다!"));
-  };
-
-  const handleWriteComment = async () => {
-    if (!postId) return;
-
-    try {
-      await axios.post(`/api/comments/${postId}/write`, {
-        comment_body: comment,
-      });
-      window.location.reload();
-    } catch (e) {
-      const err = e as AxiosError<{ message: string }>;
-      toast.error(err.response?.data.message || "알 수 없는 오류입니다.");
-    }
   };
 
   // 게시글 API 받아오기
@@ -131,13 +117,13 @@ export default function PostPage() {
           <p>{postData.content}</p>
           {/*  이미지 정보 */}
           {postData.imagebase64.length > 10 && (
-            <div className="relative aspect-5/3 w-full overflow-hidden rounded-lg">
+            <div className="relative w-full">
               {!loaded && <Skeleton className="absolute inset-0 rounded-lg" />}
               <img
                 src={postData.imagebase64}
                 alt="img"
                 className={cn(
-                  "h-full w-full object-cover transition-opacity duration-300",
+                  "h-auto max-w-full rounded-lg transition-opacity duration-300",
                   loaded ? "opacity-100" : "opacity-0",
                 )}
                 onLoad={() => setLoaded(true)}
@@ -151,21 +137,7 @@ export default function PostPage() {
       )}
 
       {/* 댓글 작성 */}
-      <div className="bg-background bottom-0 z-10 flex w-full items-center gap-3 border-t px-5 py-3">
-        <input
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          className="box-border h-10 w-full rounded-full border px-5 leading-none"
-        />
-        <button
-          onClick={handleWriteComment}
-          className={
-            "bg-primary text-background h-10 w-20 rounded-full font-bold"
-          }
-        >
-          댓글
-        </button>
-      </div>
+      <CommentWrite postId={postId!} />
     </>
   );
 }

@@ -5,6 +5,7 @@ export type CommunityItem = {
   content: string;
   imagebase64: string;
   writer_nickname: string;
+  writer_profile_img: string;
   create_at: string;
 };
 

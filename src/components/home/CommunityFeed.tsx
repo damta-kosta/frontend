@@ -6,7 +6,6 @@ import {
 import { Link } from "react-router";
 import type { CommunityItem } from "@/types/Community.ts";
 import { formatTweetTime } from "@/lib/formatTweetTime.ts";
-import { cn } from "@/lib/utils.ts";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,7 +43,7 @@ export default function CommunityFeed({ post }: Props) {
               "absolute inset-0 cursor-pointer bg-neutral-800/20 opacity-0 transition-opacity duration-200 hover:opacity-100"
             }
           />
-          <AvatarImage src={post.imagebase64} alt="user_profile_img" />
+          <AvatarImage src={post.writer_profile_img} alt="user_profile_img" />
           <AvatarFallback />
         </Avatar>
         <div className={"flex w-full flex-col gap-1"}>
@@ -56,15 +55,11 @@ export default function CommunityFeed({ post }: Props) {
           </p>
           <p className={"line-clamp-[8]"}>{post.content}</p>
           {post.imagebase64.length > 10 && (
-            <div className="relative aspect-5/3 w-full overflow-hidden rounded-lg">
-              <img
-                src={post.imagebase64}
-                alt="img"
-                className={cn(
-                  "h-40 w-full object-cover transition-opacity duration-300",
-                )}
-              />
-            </div>
+            <img
+              src={post.imagebase64}
+              alt="img"
+              className={"h-auto max-w-full rounded-lg"}
+            />
           )}
         </div>
       </div>
