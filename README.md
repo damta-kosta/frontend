@@ -1,54 +1,25 @@
-# React + TypeScript + Vite
+# 담타(Damta)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📚 기술 스택
+### 💻 프론트엔드
+<p>
+<img  src="https://img.shields.io/badge/React-ffffff?logo=react"/>
+<img  src="https://img.shields.io/badge/Vite-ffffff?logo=vite"/>
+<img  src="https://img.shields.io/badge/TypeScript-ffffff?logo=typescript"/>
+<img  src="https://img.shields.io/badge/React Router-ffffff?logo=reactrouter"/>
+<img  src="https://img.shields.io/badge/Zustand-ffffff?logo=zustand"/>
+<img  src="https://img.shields.io/badge/Axios-5A29E4?logo=axios"/>
+<img  src="https://img.shields.io/badge/Socket.io-010101?logo=socketdotio"/>
+</p>
 
-Currently, two official plugins are available:
+### 라이브러리
+<p>
+<img  src="https://img.shields.io/badge/Day.js-ffffff"/>
+<img  src="https://img.shields.io/badge/react icons-ffffff"/>
+</p>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+### 🎨 스타일링
+<p>
+<img  src="https://img.shields.io/badge/Tailwind Css-ffffff?logo=tailwindcss"/>
+<img  src="https://img.shields.io/badge/shadcn/ui-000000?logo=shadcnui"/>
+</p>

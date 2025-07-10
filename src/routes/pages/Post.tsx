@@ -19,13 +19,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import { toast } from "sonner";
-import axios, { type AxiosError } from "axios";
+import axios from "axios";
 import CommentWrite from "@/components/post/CommentWrite.tsx";
+import { useAuthStore } from "@/stores/useAuthStore.ts";
 
 export default function PostPage() {
   const { postId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isLoggedIn } = useAuthStore();
 
   const [postData, setPostData] = useState<Post>();
 
@@ -137,7 +139,7 @@ export default function PostPage() {
       )}
 
       {/* 댓글 작성 */}
-      <CommentWrite postId={postId!} />
+      {isLoggedIn && <CommentWrite postId={postId!} />}
     </>
   );
 }

@@ -16,7 +16,7 @@ export default function CommentWrite({ postId }: Props) {
   });
 
   const onSubmit = handleSubmit(async (data) => {
-    if (!postId) return;
+    if (!postId || !data.comment.trim()) return;
 
     try {
       await axios.post(`/api/comments/${postId}/write`, {
@@ -35,7 +35,7 @@ export default function CommentWrite({ postId }: Props) {
       className="bg-background bottom-0 z-10 flex w-full items-center gap-3 border-t px-5 py-3"
     >
       <input
-        {...register("comment")}
+        {...register("comment", { required: true })}
         className="box-border h-10 w-full rounded-full border px-5 leading-none"
       />
       <button
