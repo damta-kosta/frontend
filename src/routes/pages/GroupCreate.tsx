@@ -59,6 +59,17 @@ export default function GroupCreate() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const imageFile = data.roomThumbnailImg;
+      if(imageFile) {
+        const base64Data = imageFile.split(',')[1];
+        const imageSizeInMB = (base64Data.length * 3) / 4 / (1024 * 1024);
+
+        if (imageSizeInMB > 1) {
+          toast.error("이미지 크기가 1MB를 초과할 수 없습니다.");
+          return;
+        }
+      }
+
       await axios.post("/api/rooms", data);
       toast.success("모임이 성공적으로 생성되었습니다!");
       navigate("/group"); // 예: 생성 후 이동
