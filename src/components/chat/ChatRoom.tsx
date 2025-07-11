@@ -15,13 +15,13 @@ type Props = {
 export default function ChatRoom({ chat }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [chatParticipants, setChatParticipants] = useState<{ user_profile_img: string; user_nickname: string }[]>([]);
-  const [cookies] = useCookies(["token"]); // 쿠키에서 'token' 값 가져오기
+  const [cookies] = useCookies(["token"]);
 
   // 채팅방 참가자 데이터 불러오기
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        const token = cookies.token; // 쿠키에서 token을 가져옵니다.
+        const token = cookies.token; // 쿠키에서 token을 가져오기
 
         if (!token) {
           throw new Error("토큰이 없습니다.");
@@ -29,7 +29,7 @@ export default function ChatRoom({ chat }: Props) {
 
         const response = await axios.get(`/api/rooms/${chat.room_id}/participants`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Authorization 헤더에 token 포함
+            Authorization: `Bearer ${token}`,
           },
         });
         setChatParticipants(response.data); // 참가자 정보 설정
@@ -69,7 +69,7 @@ export default function ChatRoom({ chat }: Props) {
         </div>
         <div className="flex h-[75px] w-full flex-col items-start overflow-hidden">
           <p className={"line-clamp-1 font-bold"}>{chat.room_title}</p>
-          <div className={"grid w-full grid-cols-3 gap-2"}>
+          <div className={"grid w-full grid-cols-3 gap-2 mt-6"}>
             {/* 참가자 이미지 표시 */}
             <div className="col-span-2 flex gap-2">
               {chatParticipants.length > 0 ? (
@@ -93,7 +93,7 @@ export default function ChatRoom({ chat }: Props) {
               )}
             </div>
             {/* 최신 채팅 날짜 (고정형식으로 표시) */}
-            <p className={"col-span-1 text-xs text-neutral-500"}>
+            <p className={"col-span-1 text-xs text-neutral-500 mt-2"}>
               {new Date().toISOString().split("T")[0]} {/* yyyy-MM-dd 형식 */}
             </p>
           </div>
