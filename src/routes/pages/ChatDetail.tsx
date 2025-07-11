@@ -3,18 +3,13 @@ import { Button } from "@/components/ui/button.tsx";
 import {
   RiArrowDropDownLine,
   RiArrowLeftLine,
-  RiDeleteBinLine,
-  RiEditLine,
   RiLogoutBoxLine,
 } from "react-icons/ri";
 import { useEffect, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu.tsx";
 import { MoreHorizontal } from "lucide-react";
@@ -33,6 +28,7 @@ import axios from "axios";
 import type { Participant } from "@/types/Room.ts";
 import dayjs from "dayjs";
 import ChatExitModal from "@/components/chat/ChatExitModal.tsx";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ChatDetailPage() {
   const { chatId } = useParams();
@@ -45,6 +41,10 @@ export default function ChatDetailPage() {
   const [messages, setMessages] = useState<ChatInfo[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [exitModalOpen, setExitModalOpen] = useState(false);
+  const [roomData, setRoomData] = useState<{ room_title: string; room_thumbnail: string }>({
+    room_title: "",
+    room_thumbnail: "",
+  });
 
   // 채팅 업데이트 스크롤 ref
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -65,12 +65,8 @@ export default function ChatDetailPage() {
       console.log(`${userId} is typing...`);
     },
     onUserList: (list) => {
-      // console.log("접속자 목록", list);
       setParticipants(list);
     },
-    /*onUserCount: (count) => {
-      console.log("접속자 수", count);
-    },*/
   });
 
   const handleSendMessage = () => {
@@ -86,17 +82,29 @@ export default function ChatDetailPage() {
     }
   };
 
-  // 채팅 스크롤 올렸을 때 과거 메시지 가져오기
+  // 방 데이터 가져오기
   useEffect(() => {
-    // syncChat();
+    const fetchRoomData = async () => {
+      try {
+        const response = await axios.get(`/api/roomList/rooms/${chatId}`);
+        setRoomData({
+          room_title: response.data.title,
+          room_thumbnail: response.data.thumbnailBase64 || "https://picsum.photos/600/300", // 썸네일 기본값 설정
+        });
+      } catch (error) {
+        console.error("Room data fetch error:", error);
+      }
+    };
+
+    fetchRoomData();
 
     return () => {
       disconnect(); // ✅ 페이지 벗어날 때 연결 끊기
     };
-  }, []);
+  }, [chatId]);
 
   useEffect(() => {
-    //   메세지 추가 시, 스크롤
+    // 메세지 추가 시, 스크롤
     bottomRef.current?.scrollIntoView();
   }, [messages]);
 
@@ -118,7 +126,7 @@ export default function ChatDetailPage() {
             <RiArrowLeftLine className={"size-7"} />
           </Button>
           <div className="flex w-full items-center justify-between">
-            <p className={"text-2xl font-bold"}>모임명</p>
+            <p className={"text-2xl font-bold"}>{roomData.room_title || "기본 제목"}</p> {/* room_title 동적 표시 */}
             <DropdownMenu open={open} onOpenChange={setOpen}>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className={"rounded-full"}>
@@ -144,27 +152,28 @@ export default function ChatDetailPage() {
         />
 
         {/* 커버 이미지 */}
-        {/*{coverOpen && (
-          <div className={"relative aspect-3/1"}>
+        {coverOpen && (
+          <div className={"relative aspect-[3/1] overflow-hidden"}>
             {!loaded && <Skeleton className="absolute inset-0" />}
             <img
-              src={"https://picsum.photos/600/300"}
+              src={roomData.room_thumbnail || "https://picsum.photos/600/300"}
               alt={"cover-img"}
               className={cn(
-                "aspect-3/1 h-full w-full object-cover object-center transition-opacity duration-300",
+                "aspect-[3/1] h-full w-full object-fill transition-opacity duration-300", // object-fill 사용
                 loaded ? "opacity-100" : "opacity-0",
               )}
               onLoad={() => setLoaded(true)}
             />
           </div>
-        )}*/}
+        )}
+        
         <div className={"sticky flex flex-col gap-2 border-b px-5 py-3"}>
           {coverOpen && (
             <>
               <div className={"flex gap-1"}>
                 {participants.map((user, index) => (
                   <Avatar key={index} className={"size-10"}>
-                    <AvatarImage src={user.user_profile_img || ""} alt="user" />
+                    <AvatarImage src={user.user_profile_img} alt="user" />
                     <AvatarFallback />
                   </Avatar>
                 ))}
@@ -213,16 +222,12 @@ export default function ChatDetailPage() {
           <div ref={bottomRef} />
         </div>
 
-        {/*  채팅 입력 */}
+        {/* 채팅 입력 */}
         <div
-          className={
-            "bg-background absolute bottom-0 z-10 w-full border-t px-4 py-2"
-          }
+          className={"bg-background absolute bottom-0 z-10 w-full border-t px-4 py-2"}
         >
           <div
-            className={
-              "flex w-full gap-2 rounded-full bg-neutral-100 py-1 pr-1 pl-4"
-            }
+            className={"flex w-full gap-2 rounded-full bg-neutral-100 py-1 pr-1 pl-4"}
           >
             <input
               maxLength={255}
@@ -231,7 +236,6 @@ export default function ChatDetailPage() {
               className={"w-full focus:outline-0"}
               onChange={(e) => {
                 setInputValue(e.target.value);
-                // sendTyping(); // ✅ 타이핑 이벤트 보내기
               }}
               onKeyDown={onKeyDown}
             />
