@@ -142,7 +142,7 @@ export default function GroupDetailPage() {
                 src={roomDetailData.thumbnailBase64 ?? ""}
                 alt={"cover-img"}
                 className={cn(
-                  "h-full w-full object-cover object-center transition-opacity duration-300",
+                  "h-full w-full object-fill object-center transition-opacity duration-300",
                   loaded ? "opacity-100" : "opacity-0",
                 )}
                 onLoad={() => setLoaded(true)}

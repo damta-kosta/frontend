@@ -37,7 +37,7 @@ export default function Group({ room }: Props) {
             src={room.thumbnailBase64 ?? ""}
             alt="img"
             className={cn(
-              "h-full w-full object-cover transition-opacity duration-300",
+              "h-full w-full object-fill transition-opacity duration-300",
               loaded ? "opacity-100" : "opacity-0",
             )}
             onLoad={() => setLoaded(true)}

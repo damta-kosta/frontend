@@ -57,7 +57,7 @@ export default function ChatRoom({ chat }: Props) {
             src={chat.room_thumbnail_img || defaultThumbnail}
             alt={"cover-img"}
             className={cn(
-              "h-full w-full rounded-lg object-cover transition-opacity duration-300",
+              "h-full w-full rounded-lg object-fill transition-opacity duration-300",
               loaded ? "opacity-100" : "opacity-0",
             )}
             onLoad={() => setLoaded(true)}
