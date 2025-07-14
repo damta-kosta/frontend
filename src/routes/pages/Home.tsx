@@ -97,20 +97,20 @@ export default function HomePage() {
           plugins={[Autoplay({ delay: 4000 })]}
         >
           <CarouselContent>
-            {Array.from({ length: 5 }).map((_, index) => (
+            {["carousel1.png", "carousel2.jpg", "carousel3.jpg", "carousel4.jpg", "carousel5.jpg"].map((src, index) => (
               <CarouselItem key={index}>
-                <div className="p-1">
-                  <div className="bg-primary/30 flex h-72 items-center justify-center rounded-xl p-6">
-                    <span className="text-4xl font-semibold">{index + 1}</span>
-                  </div>
+                <div className="overflow-hidden rounded-xl">
+                  <img
+                    src={`/${src}`}
+                    alt={`carousel-${index}`}
+                    className="w-full h-72 object-full"
+                  />
                 </div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious
-            className={"top-full left-full -translate-x-24 -translate-y-12"}
-          />
-          <CarouselNext className={"top-full right-4 -translate-y-12"} />
+          <CarouselPrevious />
+          <CarouselNext />
         </Carousel>
 
         {/* 🟡 초기 로딩 중일 때 로딩 스피너 */}
