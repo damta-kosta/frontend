@@ -41,6 +41,7 @@ export default function ChatDetailPage() {
   const [coverOpen, setCoverOpen] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [socketUsers, setSocketUsers] = useState<Participant[]>([]);
   const [messages, setMessages] = useState<ChatInfo[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [exitModalOpen, setExitModalOpen] = useState(false);
@@ -73,7 +74,7 @@ export default function ChatDetailPage() {
       console.log(`${userId} is typing...`);
     },
     onUserList: (list) => {
-      setParticipants(list);
+      setSocketUsers(list);
     },
   });
 
@@ -108,7 +109,7 @@ export default function ChatDetailPage() {
       try {
         const res = await axios.get(`/api/chat/${chatId}/participants`);
         const fetchedParticipants = res.data.participants;
-        setParticipants(res.data.participants);
+        setParticipants(fetchedParticipants);
 
         const myself = fetchedParticipants.find(p => p.user_id === user?.user_id);
         setIsHost(!!myself?.is_host);
@@ -243,12 +244,20 @@ export default function ChatDetailPage() {
           {coverOpen && (
             <>
               <div className={"flex gap-1"}>
-                {participants.map((user, index) => (
-                  <Avatar key={index} className={"size-10"}>
-                    <AvatarImage src={user.user_profile_img} alt="user" />
-                    <AvatarFallback />
-                  </Avatar>
-                ))}
+                {participants.map((user, index) => {
+                  const isOnline = socketUsers.some(s => s.user_id === user.user_id);
+                  return (
+                    <div key={user.user_id} className="relative">
+                      <Avatar className="size-10">
+                        <AvatarImage src={user.user_profile_img} alt="user" />
+                        <AvatarFallback />
+                      </Avatar>
+                      {isOnline && (
+                        <span className="absolute bottom-0 right-0 size-2 rounded-full bg-green-500 border border-white" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}
