@@ -20,6 +20,7 @@ type Props = {
   onClose: () => void;
   targetUsers: Participant[];
   roomId: string;
+  onSubmit: (targetId: string, reputation: "warm" | "cold") => void;
 };
 
 export default function UserEvaluationModal({

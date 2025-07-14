@@ -5,7 +5,7 @@ import {
   RiArrowLeftLine,
   RiLogoutBoxLine,
 } from "react-icons/ri";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,9 @@ import type { Participant } from "@/types/Room.ts";
 import dayjs from "dayjs";
 import ChatExitModal from "@/components/chat/ChatExitModal.tsx";
 import { Skeleton } from "@/components/ui/skeleton";
+import AttendanceCheckModal from "@/components/chat/AttendanceModal";
+import UserEvaluationModal from "@/components/chat/UserEvaluationModal";
+import ChatGroupDeleteModal from "@/components/chat/ChatGroupDeleteModal";
 
 export default function ChatDetailPage() {
   const { chatId } = useParams();
@@ -45,6 +48,11 @@ export default function ChatDetailPage() {
     room_title: "",
     room_thumbnail: "",
   });
+  const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
+  const [evaluationModalOpen, setEvaluationModalOpen] = useState(false);
+  const [attendedUsers, setAttendedUsers] = useState<Participant[]>([]);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isHost, setIsHost] = useState(false);
 
   // 채팅 업데이트 스크롤 ref
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -96,17 +104,63 @@ export default function ChatDetailPage() {
       }
     };
 
+    const fetchParticipants = async () => {
+      try {
+        const res = await axios.get(`/api/chat/${chatId}/participants`);
+        const fetchedParticipants = res.data.participants;
+        setParticipants(res.data.participants);
+
+        const myself = fetchedParticipants.find(p => p.user_id === user?.user_id);
+        setIsHost(!!myself?.is_host);
+
+        const now = new Date();
+        const scheduled = new Date(res.data.room_scheduled);
+        if (myself?.is_host && scheduled <= now) {
+          setAttendanceModalOpen(true);
+        }
+      } catch (error) {
+        console.error("Participant fetch error:", error);
+      }
+    };
+
     fetchRoomData();
+    fetchParticipants();
 
     return () => {
       disconnect(); // ✅ 페이지 벗어날 때 연결 끊기
     };
-  }, [chatId]);
+  }, [chatId, user?.user_id]);
 
   useEffect(() => {
     // 메세지 추가 시, 스크롤
     bottomRef.current?.scrollIntoView();
   }, [messages]);
+
+  const handleAttendanceSubmit = async (selectedUserIds: string[]) => {
+    try {
+      await axios.put(`/api/chat/${chatId}/check_attendance`, {
+        targetUserIds: selectedUserIds,
+      });
+
+      const selected = participants.filter((p) => selectedUserIds.includes(p.user_id));
+      setAttendedUsers(selected);
+      setEvaluationModalOpen(true);
+    } catch (e) {
+      alert("출석 체크 실패");
+    }
+  };
+
+  const handleReputationSubmit = async (targetId: string, reputation: "warm" | "cold") => {
+    try {
+      await axios.post(`/api/chat/${targetId}/reputation`, { reputation }, {
+        params: { roomId: chatId },
+      });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        alert(err.response?.data?.error || "평판 등록 실패");
+      }
+    }
+  };
 
   return (
     <>
@@ -134,6 +188,24 @@ export default function ChatDetailPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
+                {isHost && (
+                  <DropdownMenuItem
+                    onClick={() => setAttendanceModalOpen(true)}
+                    className="cursor-pointer"
+                  >
+                    📝 출석 체크
+                  </DropdownMenuItem>
+                )}
+
+                {isHost && (
+                  <DropdownMenuItem
+                    onClick={() => setDeleteModalOpen(true)}
+                    className="cursor-pointer text-destructive"
+                  >
+                    🗑️ 방 삭제
+                  </DropdownMenuItem>
+                )}
+
                 <DropdownMenuItem
                   variant={"destructive"}
                   onClick={() => setExitModalOpen(true)}
@@ -250,6 +322,27 @@ export default function ChatDetailPage() {
           </div>
         </div>
       </div>
+
+      <ChatGroupDeleteModal 
+        open={deleteModalOpen} 
+        onCancel={() => setDeleteModalOpen(false)} 
+      />
+
+      <AttendanceCheckModal
+        open={attendanceModalOpen}
+        onClose={() => setAttendanceModalOpen(false)}
+        participants={participants}
+        onSubmit={handleAttendanceSubmit}
+        mode="manual"
+      />
+
+      <UserEvaluationModal
+        open={evaluationModalOpen}
+        onClose={() => setEvaluationModalOpen(false)}
+        targetUsers={attendedUsers.filter(p => p.user_id !== user?.user_id)}
+        roomId={chatId!}
+        onSubmit={handleReputationSubmit}
+      />
     </>
   );
 }
