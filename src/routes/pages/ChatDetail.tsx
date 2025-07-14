@@ -139,13 +139,21 @@ export default function ChatDetailPage() {
 
   const handleAttendanceSubmit = async (selectedUserIds: string[]) => {
     try {
-      await axios.put(`/api/chat/${chatId}/check_attendance`, {
+      const response = await axios.put(`/api/chat/${chatId}/check_attendance`, {
         targetUserIds: selectedUserIds,
       });
 
-      const selected = participants.filter((p) => selectedUserIds.includes(p.user_id));
-      setAttendedUsers(selected);
-      setEvaluationModalOpen(true);
+      const { attendanceCheckedAt } = response.data;
+
+      if (attendanceCheckedAt) {
+        const selected = participants.filter((p) =>
+          selectedUserIds.includes(p.user_id)
+        );
+        setAttendedUsers(selected);
+        setEvaluationModalOpen(true);
+      } else {
+        alert("아직 출석이 완료되지 않았습니다. 모든 인원을 체크해야 합니다.");
+      }
     } catch (e) {
       alert("출석 체크 실패");
     }
