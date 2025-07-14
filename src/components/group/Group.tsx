@@ -34,7 +34,7 @@ export default function Group({ room }: Props) {
         >
           {!loaded && <Skeleton className="absolute inset-0 rounded-lg" />}
           <img
-            src={room.thumbnailBase64 ?? ""}
+            src={room.thumbnailBase64 || `https://picsum.photos/seed/${room.room_id}/600/300`}
             alt="img"
             className={cn(
               "h-full w-full object-fill transition-opacity duration-300",

@@ -139,7 +139,7 @@ export default function GroupDetailPage() {
                 <Skeleton className="absolute inset-0 rounded-none" />
               )}
               <img
-                src={roomDetailData.thumbnailBase64 ?? ""}
+                src={roomDetailData.thumbnailBase64  || `https://picsum.photos/seed/${roomDetailData.room_id}/600/300`}
                 alt={"cover-img"}
                 className={cn(
                   "h-full w-full object-fill object-center transition-opacity duration-300",

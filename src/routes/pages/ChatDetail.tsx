@@ -250,7 +250,7 @@ export default function ChatDetailPage() {
                         setAttendanceMode("manual");
                         setAttendanceModalOpen(true);
                       }}
-                      disabled={attendanceCompleted} // !! 출석 완료 시 비활성화
+                      disabled={attendanceCompleted} // 출석 완료 시 비활성화
                       className="cursor-pointer"
                     >
                       📝 출석 체크
