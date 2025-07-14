@@ -54,7 +54,7 @@ export default function AttendanceCheckModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-4 py-4 max-h-[300px] overflow-y-auto">
+        <div className="grid grid-cols-2 gap-4 py-4 max-h-[300px] overflow-y-auto">
           {participants.map((user) => {
             const isSelected = selectedIds.includes(user.user_id);
             return (

@@ -61,10 +61,10 @@ export default function UserEvaluationModal({
           <DialogTitle>유저 평판 남기기</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4 py-4 max-h-[300px] overflow-y-auto">
+        <div className="grid grid-cols-2 gap-4 py-4 max-h-[400px] overflow-y-auto">
           {targetUsers.map((user) => {
             const alreadyEvaluated =
-              evaluatedUsers.includes(user.user_id) || alreadyRatedIds.includes(user.user_id); // !!수정
+              evaluatedUsers.includes(user.user_id) || alreadyRatedIds.includes(user.user_id);
             const errorMsg = errorMap[user.user_id];
 
             return (
