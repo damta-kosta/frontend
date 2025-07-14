@@ -21,6 +21,7 @@ type Props = {
   targetUsers: Participant[];
   roomId: string;
   onSubmit: (targetId: string, reputation: "warm" | "cold") => void;
+  alreadyRatedIds: string[];
 };
 
 export default function UserEvaluationModal({
@@ -28,12 +29,15 @@ export default function UserEvaluationModal({
   onClose,
   targetUsers,
   roomId,
+  onSubmit,
+  alreadyRatedIds,
 }: Props) {
   const [evaluatedUsers, setEvaluatedUsers] = useState<string[]>([]);
   const [errorMap, setErrorMap] = useState<Record<string, string>>({});
 
   const handleEvaluate = async (userId: string, reputation: "warm" | "cold") => {
-    if (evaluatedUsers.includes(userId)) return;
+    const already = evaluatedUsers.includes(userId) || alreadyRatedIds.includes(userId);
+    if (already) return;
 
     try {
       await axios.post(`/api/chat/${userId}/reputation`, {
@@ -59,7 +63,8 @@ export default function UserEvaluationModal({
 
         <div className="grid grid-cols-2 gap-4 py-4 max-h-[300px] overflow-y-auto">
           {targetUsers.map((user) => {
-            const alreadyEvaluated = evaluatedUsers.includes(user.user_id);
+            const alreadyEvaluated =
+              evaluatedUsers.includes(user.user_id) || alreadyRatedIds.includes(user.user_id); // !!수정
             const errorMsg = errorMap[user.user_id];
 
             return (
@@ -76,7 +81,7 @@ export default function UserEvaluationModal({
                 <div className="mt-2 flex gap-2">
                   <Button
                     variant="outline"
-                    disabled={alreadyEvaluated}
+                    disabled={alreadyEvaluated} // !!수정
                     onClick={() => handleEvaluate(user.user_id, "warm")}
                   >
                     <ThumbsUp className="mr-1 size-4 text-red-500" />
@@ -84,7 +89,7 @@ export default function UserEvaluationModal({
                   </Button>
                   <Button
                     variant="outline"
-                    disabled={alreadyEvaluated}
+                    disabled={alreadyEvaluated} // !!수정
                     onClick={() => handleEvaluate(user.user_id, "cold")}
                   >
                     <ThumbsDown className="mr-1 size-4 text-blue-500" />

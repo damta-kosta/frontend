@@ -50,7 +50,7 @@ export default function AttendanceCheckModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mode === "manual" ? "출석 체크 (수동)" : "출석 체크 (자동)"}
+            {mode === "manual" ? "출석 체크" : "출석 체크"}
           </DialogTitle>
         </DialogHeader>
 

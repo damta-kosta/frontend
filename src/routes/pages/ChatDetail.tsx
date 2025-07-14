@@ -54,6 +54,11 @@ export default function ChatDetailPage() {
   const [attendedUsers, setAttendedUsers] = useState<Participant[]>([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isHost, setIsHost] = useState(false);
+  const [attendanceCompleted, setAttendanceCompleted] = useState(false);
+  const [ratedUserIds, setRatedUserIds] = useState<string[]>([]); // 내가 평가한 유저들
+
+  // 출석 체크 모드 분기점
+  const [attendanceMode, setAttendanceMode] = useState<"manual" | "auto">("manual");
 
   // 채팅 업데이트 스크롤 ref
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -91,6 +96,15 @@ export default function ChatDetailPage() {
     }
   };
 
+  const fetchReputationLog = async () => {
+    try {
+      const res = await axios.get(`/api/chat/${chatId}/myReputation_logs`);
+      setRatedUserIds(res.data.reputation_user_ids || []);
+    } catch (err) {
+      console.error("평가 이력 불러오기 실패", err);
+    }
+  };
+
   // 방 데이터 가져오기
   useEffect(() => {
     const fetchRoomData = async () => {
@@ -116,7 +130,15 @@ export default function ChatDetailPage() {
 
         const now = new Date();
         const scheduled = new Date(res.data.room_scheduled);
+        const attendanceCheckedAt = res.data.attendance_checked_at;
+
+        if (attendanceCheckedAt) {
+          setAttendanceCompleted(true); // 출석 완료 상태 세팅
+          await fetchReputationLog();
+        }
+
         if (myself?.is_host && scheduled <= now) {
+          setAttendanceMode("auto");
           setAttendanceModalOpen(true);
         }
       } catch (error) {
@@ -139,25 +161,36 @@ export default function ChatDetailPage() {
 
   const handleAttendanceSubmit = async (selectedUserIds: string[]) => {
     try {
-      const response = await axios.put(`/api/chat/${chatId}/check_attendance`, {
-        targetUserIds: selectedUserIds,
-      });
+      const url =
+        attendanceMode === "auto"
+          ? `/api/chat/${chatId}/auto_attendance`
+          : `/api/chat/${chatId}/check_attendance`;
 
-      const { attendanceCheckedAt } = response.data;
+      const payload =
+        attendanceMode === "auto"
+          ? { attendedUsers: selectedUserIds }
+          : { targetUserIds: selectedUserIds };
 
-      if (attendanceCheckedAt) {
-        const selected = participants.filter((p) =>
-          selectedUserIds.includes(p.user_id)
-        );
-        setAttendedUsers(selected);
-        setEvaluationModalOpen(true);
-      } else {
-        alert("아직 출석이 완료되지 않았습니다. 모든 인원을 체크해야 합니다.");
-      }
+      const method = attendanceMode === "auto" ? "post" : "put";
+
+      const response = await axios({ method, url, data: payload });
+
+      const selected = participants.filter((p) =>
+        selectedUserIds.includes(p.user_id)
+      );
+      setAttendedUsers(selected);
+      setAttendanceCompleted(true);
+      await fetchReputationLog();
+      setEvaluationModalOpen(true);
     } catch (e) {
-      alert("출석 체크 실패");
+      if (attendanceMode === "manual") {
+        alert("출석이 완료되지 않았습니다. 모든 인원을 체크해야 합니다.");
+      } else {
+        alert("출석 체크 실패");
+      }
     }
   };
+
 
   const handleReputationSubmit = async (targetId: string, reputation: "warm" | "cold") => {
     try {
@@ -169,6 +202,19 @@ export default function ChatDetailPage() {
         alert(err.response?.data?.error || "평판 등록 실패");
       }
     }
+  };
+
+  const handleOpenEvaluationModal = () => {
+    const others = participants.filter(p => p.user_id !== user?.user_id);
+    const remaining = others.filter(p => !ratedUserIds.includes(p.user_id));
+
+    if (remaining.length === 0) {
+      alert("이미 모든 유저에 대한 평가를 완료했습니다.");
+      return;
+    }
+
+    setAttendedUsers(others);
+    setEvaluationModalOpen(true);
   };
 
   return (
@@ -198,20 +244,42 @@ export default function ChatDetailPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
                 {isHost && (
-                  <DropdownMenuItem
-                    onClick={() => setAttendanceModalOpen(true)}
-                    className="cursor-pointer"
-                  >
-                    📝 출석 체크
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setAttendanceMode("manual");
+                        setAttendanceModalOpen(true);
+                      }}
+                      disabled={attendanceCompleted} // !! 출석 완료 시 비활성화
+                      className="cursor-pointer"
+                    >
+                      📝 출석 체크
+                    </DropdownMenuItem>
+
+                    {attendanceCompleted && (
+                      <DropdownMenuItem
+                        onClick={handleOpenEvaluationModal} // 평가하기 버튼
+                        className="cursor-pointer"
+                      >
+                        🌡️ 평가하기
+                      </DropdownMenuItem>
+                    )}
+
+                    <DropdownMenuItem
+                      onClick={() => setDeleteModalOpen(true)}
+                      className="cursor-pointer text-destructive"
+                    >
+                      🗑️ 방 삭제
+                    </DropdownMenuItem>
+                  </>
                 )}
 
-                {isHost && (
+                {!isHost && attendanceCompleted && (
                   <DropdownMenuItem
-                    onClick={() => setDeleteModalOpen(true)}
-                    className="cursor-pointer text-destructive"
+                    onClick={() => setEvaluationModalOpen(true)} // 참여자도 평가 가능
+                    className="cursor-pointer"
                   >
-                    🗑️ 방 삭제
+                    🌡️ 평가하기
                   </DropdownMenuItem>
                 )}
 
@@ -350,7 +418,7 @@ export default function ChatDetailPage() {
         onClose={() => setAttendanceModalOpen(false)}
         participants={participants}
         onSubmit={handleAttendanceSubmit}
-        mode="manual"
+        mode={attendanceMode}
       />
 
       <UserEvaluationModal
@@ -359,6 +427,7 @@ export default function ChatDetailPage() {
         targetUsers={attendedUsers.filter(p => p.user_id !== user?.user_id)}
         roomId={chatId!}
         onSubmit={handleReputationSubmit}
+        alreadyRatedIds={ratedUserIds}
       />
     </>
   );
